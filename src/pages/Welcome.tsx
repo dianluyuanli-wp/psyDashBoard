@@ -2,6 +2,7 @@ import React from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { Card, Typography, Alert } from 'antd';
 import styles from './Welcome.less';
+import TableBasic from './TableBasic';
 
 const CodePreview: React.FC<{}> = ({ children }) => (
   <pre className={styles.pre}>
@@ -45,6 +46,9 @@ export default (): React.ReactNode => (
         </a>
       </Typography.Text>
       <CodePreview> npm run fetch:blocks</CodePreview>
+    </Card>
+    <Card>
+      <TableBasic />
     </Card>
     <p
       style={{
