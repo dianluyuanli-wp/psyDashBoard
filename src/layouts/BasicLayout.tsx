@@ -19,6 +19,7 @@ import { Result, Button } from 'antd';
 import Authorized from '@/utils/Authorized';
 import RightContent from '@/components/GlobalHeader/RightContent';
 import { ConnectState } from '@/models/connect';
+import { CurrentUser } from '@/models/user';
 import { isAntDesignPro, getAuthorityFromRouter } from '@/utils/utils';
 import logo from '../assets/logo.svg';
 
@@ -42,6 +43,8 @@ export interface BasicLayoutProps extends ProLayoutProps {
     authority: string[];
   };
   settings: Settings;
+  currentUser?: CurrentUser;
+  accessToken?: string;
   dispatch: Dispatch;
 }
 export type BasicLayoutContext = { [K in 'location']: BasicLayoutProps[K] } & {
@@ -116,6 +119,8 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
     dispatch,
     children,
     settings,
+    currentUser,
+    accessToken,
     location = {
       pathname: '/',
     },
@@ -128,6 +133,10 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
     if (dispatch) {
       dispatch({
         type: 'user/fetchCurrent',
+        payload: {
+          name: currentUser?.name,
+          token: accessToken,
+        },
       });
     }
   }, []);
@@ -193,7 +202,9 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
   );
 };
 
-export default connect(({ global, settings }: ConnectState) => ({
+export default connect(({ global, settings, user, login }: ConnectState) => ({
   collapsed: global.collapsed,
   settings,
+  currentUser: user.currentUser,
+  accessToken: login.accessToken,
 }))(BasicLayout);

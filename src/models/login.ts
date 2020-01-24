@@ -3,7 +3,8 @@ import { Effect } from 'dva';
 import { stringify } from 'querystring';
 import router from 'umi/router';
 
-import { fakeAccountLogin } from '@/services/login';
+//import { fakeAccountLogin } from '@/services/login';
+import { login } from '@/services/userInfo';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
 
@@ -11,6 +12,7 @@ export interface StateType {
   status?: 'ok' | 'error';
   type?: string;
   currentAuthority?: 'user' | 'guest' | 'admin';
+  accessToken?: '';
 }
 
 export interface LoginModelType {
@@ -34,7 +36,7 @@ const Model: LoginModelType = {
 
   effects: {
     *login({ payload }, { call, put }) {
-      const response = yield call(fakeAccountLogin, payload);
+      const response = yield call(login, payload);
       yield put({
         type: 'changeLoginStatus',
         payload: response,
@@ -81,6 +83,7 @@ const Model: LoginModelType = {
         ...state,
         status: payload.status,
         type: payload.type,
+        accessToken: payload.accessToken,
       };
     },
   },

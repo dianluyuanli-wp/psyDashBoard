@@ -42,6 +42,9 @@ const Login: React.FC<LoginProps> = props => {
       type: 'login/login',
       payload: { ...values, type },
     });
+    // dispatch({
+    //   type: 'user/getToken',
+    // })
   };
   return (
     <div className={styles.main}>

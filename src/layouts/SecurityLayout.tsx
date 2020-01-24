@@ -3,12 +3,14 @@ import { connect } from 'dva';
 import { PageLoading } from '@ant-design/pro-layout';
 import { Redirect } from 'umi';
 import { stringify } from 'querystring';
+//import { getUserInfo } from '../services/userInfo';
 import { ConnectState, ConnectProps } from '@/models/connect';
 import { CurrentUser } from '@/models/user';
 
 interface SecurityLayoutProps extends ConnectProps {
   loading?: boolean;
   currentUser?: CurrentUser;
+  accessToken?: string;
 }
 
 interface SecurityLayoutState {
@@ -20,14 +22,19 @@ class SecurityLayout extends React.Component<SecurityLayoutProps, SecurityLayout
     isReady: false,
   };
 
-  componentDidMount() {
+  async componentDidMount() {
     this.setState({
       isReady: true,
     });
-    const { dispatch } = this.props;
+    const { dispatch, currentUser, accessToken } = this.props;
+    //const aa = await getUserInfo();
     if (dispatch) {
       dispatch({
         type: 'user/fetchCurrent',
+        payload: {
+          name: currentUser?.name,
+          token: accessToken,
+        },
       });
     }
   }
@@ -52,7 +59,8 @@ class SecurityLayout extends React.Component<SecurityLayoutProps, SecurityLayout
   }
 }
 
-export default connect(({ user, loading }: ConnectState) => ({
+export default connect(({ user, loading, login }: ConnectState) => ({
   currentUser: user.currentUser,
   loading: loading.models.user,
+  accessToken: login.accessToken,
 }))(SecurityLayout);
