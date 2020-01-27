@@ -44,9 +44,6 @@ const GlobalHeaderRight: React.SFC<GlobalHeaderRightProps> = props => {
             value: 'Pro Layout',
           },
         ]}
-        // onSearch={value => {
-        //   //console.log('input', value);
-        // }}
       />
       <NoticeIconView />
       <Tooltip title="使用文档">

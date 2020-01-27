@@ -138,6 +138,11 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
           token: accessToken,
         },
       });
+      console.log(accessToken, 'token ddd');
+      dispatch({
+        type: 'login/getTokenFromLocalStorage',
+      });
+      console.log(accessToken, 'ddcds');
     }
   }, []);
   /**

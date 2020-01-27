@@ -12,7 +12,7 @@ export interface StateType {
   status?: 'ok' | 'error';
   type?: string;
   currentAuthority?: 'user' | 'guest' | 'admin';
-  accessToken?: '';
+  accessToken?: string;
 }
 
 export interface LoginModelType {
@@ -24,6 +24,7 @@ export interface LoginModelType {
   };
   reducers: {
     changeLoginStatus: Reducer<StateType>;
+    getTokenFromLocalStorage: Reducer<StateType>;
   };
 }
 
@@ -79,11 +80,19 @@ const Model: LoginModelType = {
   reducers: {
     changeLoginStatus(state, { payload }) {
       setAuthority(payload.currentAuthority);
+      localStorage.setItem('tk', payload.accessToken);
       return {
         ...state,
         status: payload.status,
         type: payload.type,
         accessToken: payload.accessToken,
+      };
+    },
+    getTokenFromLocalStorage(state) {
+      const localToken = localStorage.getItem('tk');
+      return {
+        ...state,
+        accessToken: localToken || '',
       };
     },
   },

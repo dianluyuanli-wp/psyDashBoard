@@ -111,12 +111,12 @@ export default {
               component: './Admin',
               authority: ['admin'],
             },
-            {
-              name: '个人中心',
-              icon: 'smile',
-              path: '/accountcenter',
-              component: './AccountCenter',
-            },
+            // {
+            //   name: '个人中心',
+            //   icon: 'smile',
+            //   path: '/accountcenter',
+            //   component: './AccountCenter',
+            // },
             {
               component: './404',
             },
@@ -151,7 +151,7 @@ export default {
         resourcePath: string;
       },
       _: string,
-      localName: string
+      localName: string,
     ) => {
       if (
         context.resourcePath.includes('node_modules') ||

@@ -51,3 +51,20 @@ export async function myQueryCurrent(params: QueryCurrentInfo): Promise<any> {
   });
   return res;
 }
+
+interface QueryCommonnPara {
+  token: string;
+}
+
+interface GetListProp extends QueryCommonnPara {
+  name: string;
+}
+
+export async function getList(params: GetListProp): Promise<any> {
+  const url = domain + 'getInterviewerList';
+  const res = await request(url, {
+    method: 'post',
+    data: params,
+  });
+  return res;
+}

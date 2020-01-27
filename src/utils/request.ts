@@ -4,6 +4,7 @@
  */
 import { extend } from 'umi-request';
 import { notification } from 'antd';
+import router from 'umi/router';
 
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
@@ -48,9 +49,27 @@ const errorHandler = (error: { response: Response }): Response => {
 /**
  * 配置request请求时的默认参数
  */
-const request = extend({
+let request = extend({
   errorHandler, // 默认错误处理
   credentials: 'include', // 默认请求是否带上cookie
+});
+
+request.use(async (ctx, next) => {
+  await next();
+  const { res } = ctx;
+  if (res?.response?.status === '401') {
+    notification.error({
+      message: `请求错误 鉴权失败`,
+      description: '鉴权失败,请重新登陆',
+    });
+    setTimeout(
+      () =>
+        router.replace({
+          pathname: '/user/login',
+        }),
+      2000,
+    );
+  }
 });
 
 export default request;
