@@ -68,3 +68,19 @@ export async function getList(params: GetListProp): Promise<any> {
   });
   return res;
 }
+
+interface PeriodObj {
+  date: string;
+  startTime: string;
+  endTime: string;
+  counselorId: string;
+}
+
+export async function addPeroid(params: PeriodObj): Promise<any> {
+  const url = domain + 'addPeriod';
+  const res = await request(url, {
+    method: 'post',
+    data: params,
+  });
+  return res;
+}

@@ -11,6 +11,7 @@ import { getPageQuery } from '@/utils/utils';
 export interface StateType {
   status?: 'ok' | 'error';
   type?: string;
+  name?: string;
   currentAuthority?: 'user' | 'guest' | 'admin';
   accessToken?: string;
 }
@@ -38,6 +39,7 @@ const Model: LoginModelType = {
   effects: {
     *login({ payload }, { call, put }) {
       const response = yield call(login, payload);
+      response.name = payload.userName;
       yield put({
         type: 'changeLoginStatus',
         payload: response,
@@ -81,11 +83,13 @@ const Model: LoginModelType = {
     changeLoginStatus(state, { payload }) {
       setAuthority(payload.currentAuthority);
       localStorage.setItem('tk', payload.accessToken);
+      localStorage.setItem('name', payload.name);
       return {
         ...state,
         status: payload.status,
         type: payload.type,
         accessToken: payload.accessToken,
+        name: payload.name,
       };
     },
     getTokenFromLocalStorage(state) {

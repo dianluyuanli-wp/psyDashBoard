@@ -11,6 +11,7 @@ interface SecurityLayoutProps extends ConnectProps {
   loading?: boolean;
   currentUser?: CurrentUser;
   accessToken?: string;
+  name?: string;
 }
 
 interface SecurityLayoutState {
@@ -26,14 +27,16 @@ class SecurityLayout extends React.Component<SecurityLayoutProps, SecurityLayout
     this.setState({
       isReady: true,
     });
-    const { dispatch, currentUser, accessToken } = this.props;
-    //const aa = await getUserInfo();
+    const { dispatch, accessToken, name } = this.props;
     if (dispatch) {
+      dispatch({
+        type: 'login/getTokenFromLocalStorage',
+      });
       dispatch({
         type: 'user/fetchCurrent',
         payload: {
-          name: currentUser?.name,
-          token: accessToken,
+          name: name || localStorage.getItem('name'),
+          token: accessToken || localStorage.getItem('tk'),
         },
       });
     }
@@ -63,4 +66,5 @@ export default connect(({ user, loading, login }: ConnectState) => ({
   currentUser: user.currentUser,
   loading: loading.models.user,
   accessToken: login.accessToken,
+  name: login.name,
 }))(SecurityLayout);

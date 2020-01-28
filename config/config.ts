@@ -100,7 +100,7 @@ export default {
             },
             {
               path: '/welcome',
-              name: 'welcome',
+              name: 'currentApply',
               icon: 'smile',
               component: './Welcome',
             },
@@ -111,7 +111,12 @@ export default {
               component: './Admin',
               authority: ['admin'],
             },
-            // {
+            {
+              name: 'bookTimeManager',
+              icon: 'crown',
+              path: '/periodManager',
+              component: './PeriodManager',
+            }, // {
             //   name: '个人中心',
             //   icon: 'smile',
             //   path: '/accountcenter',

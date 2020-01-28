@@ -6,11 +6,56 @@ import { ConnectState } from '@/models/connect';
 import { Dispatch } from 'redux';
 import { getList } from '@/services/userInfo';
 import { Table, Divider, Avatar, Tag } from 'antd';
+import { ActionText } from '@/components/smallCom/ActionText';
 
 interface TableComProps {
   currentUser: CurrentUser;
   accessToken: string;
   dispatch: Dispatch;
+}
+
+interface TableItem {
+  name: string;
+  gender: number;
+  tel: string;
+  time: string;
+  avatar: string;
+  saySome: string;
+  status: string;
+  key: number;
+}
+
+interface TableAction {
+  type: string;
+  index: number;
+  newAct?: string;
+  list?: Array<TableItem>;
+}
+
+interface FormData {
+  date: string;
+  mobile: string;
+  saySome: string;
+  time?: string;
+  startTime?: string;
+  endTime?: string;
+}
+
+interface UserInfo {
+  avatarUrl: string;
+  city: string;
+  country: string;
+  gender: number;
+  language: string;
+  nickName: string;
+  province: string;
+}
+
+interface CombienData {
+  formData: FormData;
+  userInfo: UserInfo;
+  status: string;
+  [key: string]: any;
 }
 
 const TableCom: React.FC<TableComProps> = props => {
@@ -21,7 +66,7 @@ const TableCom: React.FC<TableComProps> = props => {
       title: '昵称',
       dataIndex: 'name',
       key: 'name',
-      render: (text: string) => <a href="javascript:volid(0);">{text}</a>,
+      render: (text: string) => <ActionText text={text} className={styles.action} />,
     },
     {
       title: '性别',
@@ -42,7 +87,7 @@ const TableCom: React.FC<TableComProps> = props => {
     {
       title: '状态',
       key: 'status',
-      render: tags => (
+      render: (tags: TableItem) => (
         <span>
           <Tag color={'geekblue'} key={tags.key}>
             {tags.status}
@@ -53,28 +98,24 @@ const TableCom: React.FC<TableComProps> = props => {
     {
       title: '操作',
       key: 'action',
-      render: (text, record) => {
+      render: (text: TableItem) => {
         return (
           <span>
-            <a href="javascript:volid(0);" onClick={accept.bind(null, text.key)}>
-              接受预约
-            </a>
+            <ActionText text={'接受预约'} onClick={accept.bind(null, text.key)} />
             <Divider type="vertical" />
-            <a href="javascript:volid(0);" onClick={deny.bind(null, text.key)}>
-              驳回
-            </a>
+            <ActionText text={'驳回'} onClick={deny.bind(null, text.key)} />
           </span>
         );
       },
     },
   ];
-  const listReducer = function(state, action) {
+  const listReducer = function(state: Array<TableItem>, action: TableAction) {
     const actionMap = {
       init: () => action.list,
       changeStatus: () => {
         const index = action.index;
         const target = state[index];
-        target.status = action.newAct;
+        target.status = action.newAct || 'accept';
         return [...state.slice(0, index), target, ...state.slice(index + 1)];
       },
     };
@@ -93,9 +134,9 @@ const TableCom: React.FC<TableComProps> = props => {
         name: currentUser.name || '',
         token: accessToken,
       });
-      const xxx = res.data
-        .map(item => JSON.parse(item))
-        .map(({ formData, userInfo }, index: number) => {
+      const xxx: Array<TableItem> = res.data
+        .map((item: string): { formData: object; userInfo: object } => JSON.parse(item))
+        .map(({ formData, userInfo, status }: CombienData, index: number) => {
           const { nickName, gender, avatarUrl } = userInfo;
           const { mobile, date = '111', time = '222', saySome = 'lalala' } = formData;
           return {
@@ -105,11 +146,11 @@ const TableCom: React.FC<TableComProps> = props => {
             time: date + ' ' + time,
             avatar: avatarUrl,
             saySome,
-            status: 'not done',
+            status: status,
             key: index,
-          };
+          } as TableItem;
         });
-      setList({ type: 'init', list: xxx });
+      setList({ type: 'init', index: 0, list: xxx });
     };
     getInterviewerList();
   }, []);
