@@ -87,13 +87,18 @@ const TableCom: React.FC<TableComProps> = props => {
     {
       title: '状态',
       key: 'status',
-      render: (tags: TableItem) => (
-        <span>
-          <Tag color={'geekblue'} key={tags.key}>
+      render: (tags: TableItem) => {
+        const colorMap = {
+          apply: 'geekblue',
+          accept: 'green',
+          deny: 'gray'
+        };
+        return <span>
+          <Tag color={colorMap[tags.status]} key={tags.key}>
             {tags.status}
           </Tag>
         </span>
-      ),
+      },
     },
     {
       title: '操作',

@@ -9,6 +9,8 @@ const commonPara = {
 
 interface QueryPeriodParams {
   counselorId: string;
+  offset: number,
+  size: number
 }
 export async function getPeriod(params: QueryPeriodParams): Promise<any> {
   const url = domain + 'queryPeriod';
