@@ -1,24 +1,11 @@
-import request from '@/utils/request';
-
-const domain = 'http://localhost:4000/api/';
-
-const commonPara = {
-  name: localStorage.getItem('name'),
-  token: localStorage.getItem('tk'),
-};
-
+import { reqPost } from './commonUtils';
 interface QueryPeriodParams {
   counselorId: string;
-  offset: number,
-  size: number
+  offset: number;
+  size: number;
 }
 export async function getPeriod(params: QueryPeriodParams): Promise<any> {
-  const url = domain + 'queryPeriod';
-  const res = await request(url, {
-    method: 'post',
-    data: Object.assign(commonPara, params),
-  });
-  return res;
+  return await reqPost('queryPeriod', params);
 }
 
 interface PeriodParams {
@@ -28,10 +15,5 @@ interface PeriodParams {
   counselorId: string;
 }
 export async function addPeriod(params: PeriodParams): Promise<any> {
-  const url = domain + 'addPeriod';
-  const res = await request(url, {
-    method: 'post',
-    data: Object.assign(commonPara, params),
-  });
-  return res;
+  return await reqPost('addPeriod', params);
 }

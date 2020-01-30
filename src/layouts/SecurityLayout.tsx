@@ -3,7 +3,6 @@ import { connect } from 'dva';
 import { PageLoading } from '@ant-design/pro-layout';
 import { Redirect } from 'umi';
 import { stringify } from 'querystring';
-//import { getUserInfo } from '../services/userInfo';
 import { ConnectState, ConnectProps } from '@/models/connect';
 import { CurrentUser } from '@/models/user';
 

@@ -1,18 +1,5 @@
 import request from '@/utils/request';
-
-const domain = 'http://localhost:4000/api/';
-
-export async function getUserInfo(): Promise<any> {
-  const url = domain + 'query';
-  const res = await request(url, {
-    method: 'post',
-    data: {
-      query: 'db.collection("user").where({name:"wang"}).get()',
-    },
-  });
-  res.data = JSON.parse(res.data);
-  return res;
-}
+import { reqPost, domain } from './commonUtils';
 
 export interface LoginParamsType {
   userName: string;
@@ -34,53 +21,6 @@ export async function login(params: LoginParamsType): Promise<any> {
   });
 }
 
-export async function getToken(): Promise<any> {
-  const url = domain + 'getToken';
-  const res = await request(url, {
-    method: 'get',
-  });
-  res.data = JSON.parse(res.data);
-  return res;
-}
-
 export async function myQueryCurrent(params: QueryCurrentInfo): Promise<any> {
-  const url = domain + 'currentUser';
-  const res = await request(url, {
-    method: 'post',
-    data: params,
-  });
-  return res;
-}
-
-interface QueryCommonnPara {
-  token: string;
-}
-
-interface GetListProp extends QueryCommonnPara {
-  name: string;
-}
-
-export async function getList(params: GetListProp): Promise<any> {
-  const url = domain + 'getInterviewerList';
-  const res = await request(url, {
-    method: 'post',
-    data: params,
-  });
-  return res;
-}
-
-interface PeriodObj {
-  date: string;
-  startTime: string;
-  endTime: string;
-  counselorId: string;
-}
-
-export async function addPeroid(params: PeriodObj): Promise<any> {
-  const url = domain + 'addPeriod';
-  const res = await request(url, {
-    method: 'post',
-    data: params,
-  });
-  return res;
+  return await reqPost('currentUser', params);
 }

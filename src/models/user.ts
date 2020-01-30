@@ -29,12 +29,10 @@ export interface UserModelType {
   effects: {
     fetch: Effect;
     fetchCurrent: Effect;
-    getToken: Effect;
   };
   reducers: {
     saveCurrentUser: Reducer<UserModelState>;
     changeNotifyCount: Reducer<UserModelState>;
-    updateToken: Reducer<UserModelState>;
   };
 }
 
@@ -60,13 +58,6 @@ const UserModel: UserModelType = {
         payload: response,
       });
     },
-    *getToken(_, { call, put }) {
-      const res = yield call();
-      yield put({
-        type: 'updateToken',
-        payload: res,
-      });
-    },
   },
 
   reducers: {
@@ -88,20 +79,6 @@ const UserModel: UserModelType = {
           ...state.currentUser,
           notifyCount: action.payload.totalCount,
           unreadCount: action.payload.unreadCount,
-        },
-      };
-    },
-    updateToken(
-      state = {
-        currentUser: {},
-      },
-      action,
-    ) {
-      return {
-        ...state,
-        currentUser: {
-          ...state.currentUser,
-          accessToken: action.payload.tayken,
         },
       };
     },

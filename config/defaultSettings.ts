@@ -55,7 +55,7 @@ export default {
   menu: {
     locale: true,
   },
-  title: 'Ant Design Pro',
+  title: '心理咨询管理后台',
   pwa: false,
   iconfontUrl: '',
 } as DefaultSettings;

@@ -4,7 +4,7 @@ import { connect } from 'dva';
 import { CurrentUser } from '@/models/user';
 import { ConnectState } from '@/models/connect';
 import { Dispatch } from 'redux';
-import { getList } from '@/services/userInfo';
+import { getList, updateStatus } from '@/services/interviewee';
 import { Table, Divider, Avatar, Tag } from 'antd';
 import { ActionText } from '@/components/smallCom/ActionText';
 
@@ -91,13 +91,15 @@ const TableCom: React.FC<TableComProps> = props => {
         const colorMap = {
           apply: 'geekblue',
           accept: 'green',
-          deny: 'gray'
+          deny: 'gray',
         };
-        return <span>
-          <Tag color={colorMap[tags.status]} key={tags.key}>
-            {tags.status}
-          </Tag>
-        </span>
+        return (
+          <span>
+            <Tag color={colorMap[tags.status]} key={tags.key}>
+              {tags.status}
+            </Tag>
+          </span>
+        );
       },
     },
     {
@@ -106,9 +108,9 @@ const TableCom: React.FC<TableComProps> = props => {
       render: (text: TableItem) => {
         return (
           <span>
-            <ActionText text={'接受预约'} onClick={accept.bind(null, text.key)} />
+            <ActionText text={'接受预约'} onClick={changeStatus.bind(null, text.key, 'accept')} />
             <Divider type="vertical" />
-            <ActionText text={'驳回'} onClick={deny.bind(null, text.key)} />
+            <ActionText text={'驳回'} onClick={changeStatus.bind(null, text.key, 'deny')} />
           </span>
         );
       },
@@ -127,11 +129,9 @@ const TableCom: React.FC<TableComProps> = props => {
     return actionMap[action.type]();
   };
   const [tableData, setList] = useReducer(listReducer, []);
-  const accept = (index: number) => {
-    setList({ type: 'changeStatus', index, newAct: 'accept' });
-  };
-  const deny = (index: number) => {
-    setList({ type: 'changeStatus', index, newAct: 'deny' });
+  const changeStatus = (index: number, act: 'accept' | 'deny') => {
+    updateStatus({ _id: tableData[index]._id, status: act });
+    setList({ type: 'changeStatus', index, newAct: act });
   };
   useEffect(() => {
     const getInterviewerList = async () => {
@@ -141,7 +141,7 @@ const TableCom: React.FC<TableComProps> = props => {
       });
       const xxx: Array<TableItem> = res.data
         .map((item: string): { formData: object; userInfo: object } => JSON.parse(item))
-        .map(({ formData, userInfo, status }: CombienData, index: number) => {
+        .map(({ formData, userInfo, status, _id }: CombienData, index: number) => {
           const { nickName, gender, avatarUrl } = userInfo;
           const { mobile, date = '111', time = '222', saySome = 'lalala' } = formData;
           return {
@@ -153,6 +153,7 @@ const TableCom: React.FC<TableComProps> = props => {
             saySome,
             status: status,
             key: index,
+            _id,
           } as TableItem;
         });
       setList({ type: 'init', index: 0, list: xxx });
