@@ -116,6 +116,12 @@ export default {
               icon: 'crown',
               path: '/periodManager',
               component: './PeriodManager',
+            },
+            {
+              name: '个人设置',
+              icon: 'smile',
+              path: '/accountsettings',
+              component: './AccountSettings',
             }, // {
             //   name: '个人中心',
             //   icon: 'smile',
