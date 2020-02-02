@@ -118,7 +118,7 @@ export default {
               component: './PeriodManager',
             },
             {
-              name: '个人设置',
+              name: 'personalConfig',
               icon: 'smile',
               path: '/accountsettings',
               component: './AccountSettings',

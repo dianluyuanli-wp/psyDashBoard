@@ -1,7 +1,7 @@
 import React from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { Card } from 'antd';
-import styles from './Welcome.less';
+//  import styles from './Welcome.less';
 import TableBasic from './TableBasic';
 
 export default (): React.ReactNode => (

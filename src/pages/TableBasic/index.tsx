@@ -148,7 +148,7 @@ const TableCom: React.FC<TableComProps> = props => {
             name: nickName,
             gender,
             tel: mobile,
-            time: date + ' ' + time,
+            time: `${date  } ${  time}`,
             avatar: avatarUrl,
             saySome,
             status: status,

@@ -2,6 +2,7 @@ export default {
   'menu.welcome': '欢迎',
   'menu.currentApply': '当前预约',
   'menu.bookTimeManager': '咨询时段管理',
+  'menu.personalConfig': '个人设置',
   'menu.more-blocks': '更多区块',
   'menu.home': '首页',
   'menu.admin': '管理页',
