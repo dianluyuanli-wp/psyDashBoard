@@ -1,12 +1,12 @@
-import { QuestionCircleOutlined } from '@ant-design/icons';
-import { Tooltip } from 'antd';
+// import { QuestionCircleOutlined } from '@ant-design/icons';
+// import { Tooltip } from 'antd';
 import React from 'react';
 import { connect } from 'dva';
 import { ConnectProps, ConnectState } from '@/models/connect';
-import NoticeIconView from './NoticeIconView';
+//  import NoticeIconView from './NoticeIconView';
 import Avatar from './AvatarDropdown';
-import HeaderSearch from '../HeaderSearch';
-import SelectLang from '../SelectLang';
+// import HeaderSearch from '../HeaderSearch';
+// import SelectLang from '../SelectLang';
 import styles from './index.less';
 
 export type SiderTheme = 'light' | 'dark';
@@ -25,7 +25,7 @@ const GlobalHeaderRight: React.SFC<GlobalHeaderRightProps> = props => {
 
   return (
     <div className={className}>
-      <HeaderSearch
+      {/* <HeaderSearch
         className={`${styles.action} ${styles.search}`}
         placeholder="站内搜索"
         defaultValue="umi ui"
@@ -44,9 +44,9 @@ const GlobalHeaderRight: React.SFC<GlobalHeaderRightProps> = props => {
             value: 'Pro Layout',
           },
         ]}
-      />
-      <NoticeIconView />
-      <Tooltip title="使用文档">
+      /> */}
+      {/* <NoticeIconView /> */}
+      {/* <Tooltip title="使用文档">
         <a
           target="_blank"
           href="https://pro.ant.design/docs/getting-started"
@@ -55,9 +55,9 @@ const GlobalHeaderRight: React.SFC<GlobalHeaderRightProps> = props => {
         >
           <QuestionCircleOutlined />
         </a>
-      </Tooltip>
+      </Tooltip> */}
       <Avatar />
-      <SelectLang className={styles.action} />
+      {/* <SelectLang className={styles.action} /> */}
     </div>
   );
 };

@@ -1,19 +1,17 @@
 import { UploadOutlined } from '@ant-design/icons';
 import { Form } from '@ant-design/compatible';
 import '@ant-design/compatible/assets/index.css';
-import { Button, Input, Select, Upload, message } from 'antd';
+import { Button, Input, Upload, message } from 'antd';
 import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
 import React, { Component, Fragment } from 'react';
 
 import { FormComponentProps } from '@ant-design/compatible/es/form';
 import { connect } from 'dva';
 import { CurrentUser } from '../data.d';
-import GeographicView from './GeographicView';
 import PhoneView from './PhoneView';
 import styles from './BaseView.less';
 
 const FormItem = Form.Item;
-const { Option } = Select;
 
 // 头像组件 方便以后独立，增加裁剪之类的功能
 const AvatarView = ({ avatar }: { avatar: string }) => (
@@ -37,28 +35,6 @@ const AvatarView = ({ avatar }: { avatar: string }) => (
     </Upload>
   </Fragment>
 );
-interface SelectItem {
-  label: string;
-  key: string;
-}
-
-const validatorGeographic = (
-  _: any,
-  value: {
-    province: SelectItem;
-    city: SelectItem;
-  },
-  callback: (message?: string) => void,
-) => {
-  const { province, city } = value;
-  if (!province.key) {
-    callback('Please input your province!');
-  }
-  if (!city.key) {
-    callback('Please input your city!');
-  }
-  callback();
-};
 
 const validatorPhone = (rule: any, value: string, callback: (message?: string) => void) => {
   const values = value.split('-');
@@ -162,43 +138,6 @@ class BaseView extends Component<BaseViewProps> {
                 />,
               )}
             </FormItem>
-            {/* <FormItem label={formatMessage({ id: 'accountsettings.basic.country' })}>
-              {getFieldDecorator('country', {
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'accountsettings.basic.country-message' }, {}),
-                  },
-                ],
-              })(
-                <Select style={{ maxWidth: 220 }}>
-                  <Option value="China">中国</Option>
-                </Select>,
-              )}
-            </FormItem> */}
-            {/* <FormItem label={formatMessage({ id: 'accountsettings.basic.geographic' })}>
-              {getFieldDecorator('geographic', {
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'accountsettings.basic.geographic-message' }, {}),
-                  },
-                  {
-                    validator: validatorGeographic,
-                  },
-                ],
-              })(<GeographicView />)}
-            </FormItem> */}
-            {/* <FormItem label={formatMessage({ id: 'accountsettings.basic.address' })}>
-              {getFieldDecorator('address', {
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'accountsettings.basic.address-message' }, {}),
-                  },
-                ],
-              })(<Input />)}
-            </FormItem> */}
             <FormItem label={formatMessage({ id: 'accountsettings.basic.phone' })}>
               {getFieldDecorator('phone', {
                 rules: [
