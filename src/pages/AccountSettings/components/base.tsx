@@ -10,6 +10,7 @@ import { connect } from 'dva';
 import { CurrentUser } from '../data.d';
 import PhoneView from './PhoneView';
 import styles from './BaseView.less';
+import { ConnectState } from '@/models/connect';
 
 const FormItem = Form.Item;
 
@@ -49,6 +50,7 @@ const validatorPhone = (rule: any, value: string, callback: (message?: string) =
 
 interface BaseViewProps extends FormComponentProps {
   currentUser?: CurrentUser;
+  accessToken: string;
 }
 
 class BaseView extends Component<BaseViewProps> {
@@ -124,7 +126,7 @@ class BaseView extends Component<BaseViewProps> {
               })(<Input />)}
             </FormItem>
             <FormItem label={formatMessage({ id: 'accountsettings.basic.profile' })}>
-              {getFieldDecorator('profile', {
+              {getFieldDecorator('userInfo', {
                 rules: [
                   {
                     required: true,
@@ -166,7 +168,10 @@ class BaseView extends Component<BaseViewProps> {
 }
 
 export default connect(
-  ({ accountSettings }: { accountSettings: { currentUser: CurrentUser } }) => ({
-    currentUser: accountSettings.currentUser,
-  }),
+  ({ user, login }: ConnectState) =>
+  ({
+    currentUser: user.currentUser,
+    accessToken: login.accessToken,
+  } as BaseViewProps),
 )(Form.create<BaseViewProps>()(BaseView));
+

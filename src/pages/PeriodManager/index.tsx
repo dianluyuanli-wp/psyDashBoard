@@ -9,6 +9,7 @@ import { addPeriod, getPeriod } from '@/services/period';
 
 import { connect } from 'dva';
 import { ConnectState } from '@/models/connect';
+
 const FItem = Form.Item;
 
 export interface Period {
@@ -36,23 +37,32 @@ interface PeriodManagerProps {
   accessToken: string;
 }
 
-export const parseList = function(res: any): Array<Period>{
+export function parseList(res: any): Array<Period>{
   return res.data
   .map((item: string): Period => JSON.parse(item))
-  .map(({ _id, ...rest }: Period) => {
-    return {
+  .map(({ _id, ...rest }: Period) => ({
       ...rest,
       key: _id,
-    } as Period;
-  });
+    } as Period)
+  );
 }
 
 const PeriodManager: React.FC<PeriodManagerProps> = props => {
   const { currentUser } = props;
   const [total, setTol] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+
+  function listReducer(state: Array<Period>, action: PeriodListAction) {
+    const actionMap = {
+      add: () => [action.payload].concat([...state]),
+      init: () => action.list,
+    };
+    return actionMap[action.type]();
+  };
+  const [periodList, setPList] = useReducer(listReducer, []);
+
   useEffect(() => {
-    const getList = async function() {
+    async function getList() {
       const res = await getPeriod({ counselorId: currentUser.name || '', offset: 0, size: 3 });
       const List = parseList(res);
       setPList({ type: 'init', payload: {} as Period, list: List });
@@ -61,7 +71,7 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
     getList();
   }, []);
 
-  const reducer = function(state: Period, action: PeriodAction) {
+  function reducer(state: Period, action: PeriodAction) {
     return { ...state, [action.type]: action.value };
   };
   const [period, setPeriod] = useReducer(reducer, {
@@ -72,19 +82,11 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
     key: '',
   });
 
-  const listReducer = function(state: Array<Period>, action: PeriodListAction) {
-    const actionMap = {
-      add: () => [action.payload].concat([...state]),
-      init: () => action.list,
-    };
-    return actionMap[action.type]();
-  };
-  const [periodList, setPList] = useReducer(listReducer, []);
-  const change = function(type: 'date' | 'startTime' | 'endTime', _: moment.Moment | null, string: string) {
+  function change(type: 'date' | 'startTime' | 'endTime', _: moment.Moment | null, string: string) {
     setPeriod({ type, value: string });
   };
 
-  const but = async function() {
+  async function but() {
     const { key, periodId, ...rest } = period;
     if (!rest.date || !rest.startTime || !rest.endTime) {
       notification.error({
@@ -103,24 +105,24 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
     }
   };
   //  不能选以前的日期
-  const disableDate = function(date: moment.Moment) {
+  function disableDate(date: moment.Moment) {
       return date < moment();
   }
 
   //  开始时间从八点开始
-  const disableStartOur = function() {
+  function disableStartOur() {
     return new Array(8).fill('').map((item, index) => index);
   }
   //  结束小时置灰
-  const disableEndHour = function() {
+  function disableEndHour() {
     return new Array(24).fill('').map((item, index) => index)
-      .filter(item => item < parseInt(period.startTime.split(':')[0]));
+      .filter(item => item < parseInt(period.startTime.split(':')[0], 10));
   }
   //  结束分钟置灰
-  const disableEndMinute = function(selectHour: number) {
+  function disableEndMinute(selectHour: number) {
     return new Array(60).fill('').map((item, index) => index)
       .filter(item => {
-        const [hour, minute] = period.startTime.split(':').map(item => parseInt(item));
+        const [hour, minute] = period.startTime.split(':').map(sitem => parseInt(sitem, 10));
         return selectHour > hour ? false : item <= minute;
       })
   }
@@ -130,15 +132,15 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
       <Card title="添加咨询时段">
         <Form className={styles.range}>
           <FItem label="咨询日期">
-            <DatePicker disabledDate={disableDate} onChange={change.bind(null, 'date')} />
+            <DatePicker disabledDate={disableDate} onChange={(_, string) => change.bind(null, 'date', _, string)} />
           </FItem>
           <FItem label="开始时间">
-            <TimePicker format={'HH:mm'} hideDisabledOptions disabledHours={disableStartOur} onChange={change.bind(null, 'startTime')} minuteStep={5} />
+            <TimePicker format='HH:mm' hideDisabledOptions disabledHours={disableStartOur} onChange={change.bind(null, 'startTime')} minuteStep={5} />
           </FItem>
           <FItem label="结束时间">
-            <TimePicker format={'HH:mm'} hideDisabledOptions disabledHours={disableEndHour} disabledMinutes={disableEndMinute} onChange={change.bind(null, 'endTime')} minuteStep={5} />
+            <TimePicker format='HH:mm' hideDisabledOptions disabledHours={disableEndHour} disabledMinutes={disableEndMinute} onChange={change.bind(null, 'endTime')} minuteStep={5} />
           </FItem>
-          <Button className={styles.newRecord} onClick={but} type={'primary'}>
+          <Button className={styles.newRecord} onClick={but} type='primary'>
             新建
           </Button>
         </Form>

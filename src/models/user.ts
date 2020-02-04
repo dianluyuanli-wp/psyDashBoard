@@ -1,21 +1,17 @@
 import { Effect } from 'dva';
 import { Reducer } from 'redux';
 
-//import { queryCurrent, query as queryUsers } from '@/services/user';
+//  import { queryCurrent, query as queryUsers } from '@/services/user';
 import { query as queryUsers } from '@/services/user';
 import { myQueryCurrent } from '@/services/userInfo';
+
 export interface CurrentUser {
   avatar?: string;
   name?: string;
-  title?: string;
-  group?: string;
-  signature?: string;
-  tags?: {
-    key: string;
-    label: string;
-  }[];
-  userid?: string;
-  unreadCount?: number;
+  showName?: string;
+  email?: string;
+  phone?: string;
+  userInfo?: string;
   accessToken?: string;
 }
 
@@ -64,21 +60,18 @@ const UserModel: UserModelType = {
     saveCurrentUser(state, action) {
       return {
         ...state,
-        currentUser: action.payload || {},
+        currentUser: action.payload ? JSON.parse(action.payload.data[0]) : {},
       };
     },
     changeNotifyCount(
       state = {
         currentUser: {},
       },
-      action,
     ) {
       return {
         ...state,
         currentUser: {
           ...state.currentUser,
-          notifyCount: action.payload.totalCount,
-          unreadCount: action.payload.unreadCount,
         },
       };
     },

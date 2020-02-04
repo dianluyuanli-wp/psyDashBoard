@@ -6,17 +6,20 @@ import { GridContent } from '@ant-design/pro-layout';
 import { Menu } from 'antd';
 import { connect } from 'dva';
 import BaseView from './components/base';
-import BindingView from './components/binding';
-import { CurrentUser } from './data.d';
-import NotificationView from './components/notification';
-import SecurityView from './components/security';
+//  import BindingView from './components/binding';
+//  import { CurrentUser } from './data.d';
+import { CurrentUser } from '@/models/user';
+// import NotificationView from './components/notification';
+// import SecurityView from './components/security';
 import styles from './style.less';
+import { ConnectState } from '@/models/connect';
 
 const { Item } = Menu;
 
 interface AccountSettingsProps {
   dispatch: Dispatch<any>;
   currentUser: CurrentUser;
+  accessToken: string;
 }
 
 type AccountSettingsStateKeys = 'base' | 'security' | 'binding' | 'notification';
@@ -58,7 +61,7 @@ class AccountSettings extends Component<AccountSettingsProps, AccountSettingsSta
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'accountSettings/fetchCurrent',
+      type: 'user/fetchCurrent',
     });
     window.addEventListener('resize', this.resize);
     this.resize();
@@ -126,7 +129,7 @@ class AccountSettings extends Component<AccountSettingsProps, AccountSettingsSta
 
   render() {
     const { currentUser } = this.props;
-    if (!currentUser.userid) {
+    if (!currentUser.showName) {
       return '';
     }
     const { mode, selectKey } = this.state;
@@ -159,8 +162,16 @@ class AccountSettings extends Component<AccountSettingsProps, AccountSettingsSta
   }
 }
 
+// export default connect(
+//   ({ user, login }: ConnectState) => ({
+//     currentUser: user.currentUser,
+//   }),
+// )(AccountSettings);
+
 export default connect(
-  ({ accountSettings }: { accountSettings: { currentUser: CurrentUser } }) => ({
-    currentUser: accountSettings.currentUser,
-  }),
+  ({ user, login }: ConnectState) =>
+    ({
+      currentUser: user.currentUser,
+      accessToken: login.accessToken,
+    } as AccountSettingsProps),
 )(AccountSettings);

@@ -58,9 +58,59 @@ interface CombienData {
   [key: string]: any;
 }
 
+const genderMap = {
+  0: '未知',
+  1: '男',
+  2: '女'
+}
+
 const TableCom: React.FC<TableComProps> = props => {
   const { currentUser, accessToken } = props;
-
+  function listReducer(state: Array<TableItem>, action: TableAction) {
+    const actionMap = {
+      init: () => action.list,
+      changeStatus: () => {
+        const { index } = action;
+        const target = state[index];
+        target.status = action.newAct || 'accept';
+        return [...state.slice(0, index), target, ...state.slice(index + 1)];
+      },
+    };
+    return actionMap[action.type]();
+  };
+  const [tableData, setList] = useReducer(listReducer, []);
+  const changeStatus = (index: number, act: 'accept' | 'deny') => {
+    // eslint-disable-next-line no-underscore-dangle
+    updateStatus({ _id: tableData[index]._id, status: act });
+    setList({ type: 'changeStatus', index, newAct: act });
+  };
+  useEffect(() => {
+    const getInterviewerList = async () => {
+      const res = await getList({
+        name: currentUser.name || '',
+        token: accessToken,
+      });
+      const xxx: Array<TableItem> = res.data
+        .map((item: string): { formData: object; userInfo: object } => JSON.parse(item))
+        .map(({ formData, userInfo, status, _id }: CombienData, index: number) => {
+          const { nickName, gender, avatarUrl } = userInfo;
+          const { mobile, date = '111', time = '222', saySome = 'lalala' } = formData;
+          return {
+            name: nickName,
+            gender,
+            tel: mobile,
+            time: `${date  } ${  time}`,
+            avatar: avatarUrl,
+            saySome,
+            status,
+            key: index,
+            _id,
+          } as TableItem;
+        });
+      setList({ type: 'init', index: 0, list: xxx });
+    };
+    getInterviewerList();
+  }, []);
   const columns = [
     {
       title: '昵称',
@@ -72,7 +122,7 @@ const TableCom: React.FC<TableComProps> = props => {
       title: '性别',
       dataIndex: 'gender',
       key: 'gender',
-      render: (text: number) => (text === 0 ? '未知' : text === 1 ? '男' : '女'),
+      render: (text: number) => genderMap[text],
     },
     {
       title: '电话',
@@ -105,61 +155,14 @@ const TableCom: React.FC<TableComProps> = props => {
     {
       title: '操作',
       key: 'action',
-      render: (text: TableItem) => {
-        return (
+      render: (text: TableItem) => 
           <span>
-            <ActionText text={'接受预约'} onClick={changeStatus.bind(null, text.key, 'accept')} />
+            <ActionText text='接受预约' onClick={() => changeStatus(text.key, 'accept')} />
             <Divider type="vertical" />
-            <ActionText text={'驳回'} onClick={changeStatus.bind(null, text.key, 'deny')} />
+            <ActionText text='驳回' onClick={() => changeStatus(text.key, 'deny')} />
           </span>
-        );
-      },
     },
   ];
-  const listReducer = function(state: Array<TableItem>, action: TableAction) {
-    const actionMap = {
-      init: () => action.list,
-      changeStatus: () => {
-        const index = action.index;
-        const target = state[index];
-        target.status = action.newAct || 'accept';
-        return [...state.slice(0, index), target, ...state.slice(index + 1)];
-      },
-    };
-    return actionMap[action.type]();
-  };
-  const [tableData, setList] = useReducer(listReducer, []);
-  const changeStatus = (index: number, act: 'accept' | 'deny') => {
-    updateStatus({ _id: tableData[index]._id, status: act });
-    setList({ type: 'changeStatus', index, newAct: act });
-  };
-  useEffect(() => {
-    const getInterviewerList = async () => {
-      const res = await getList({
-        name: currentUser.name || '',
-        token: accessToken,
-      });
-      const xxx: Array<TableItem> = res.data
-        .map((item: string): { formData: object; userInfo: object } => JSON.parse(item))
-        .map(({ formData, userInfo, status, _id }: CombienData, index: number) => {
-          const { nickName, gender, avatarUrl } = userInfo;
-          const { mobile, date = '111', time = '222', saySome = 'lalala' } = formData;
-          return {
-            name: nickName,
-            gender,
-            tel: mobile,
-            time: `${date  } ${  time}`,
-            avatar: avatarUrl,
-            saySome,
-            status: status,
-            key: index,
-            _id,
-          } as TableItem;
-        });
-      setList({ type: 'init', index: 0, list: xxx });
-    };
-    getInterviewerList();
-  }, []);
   return (
     <div className={styles.container}>
       <div id="components-table-demo-basic">

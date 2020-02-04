@@ -1,4 +1,5 @@
 import request from '@/utils/request';
+
 export const domain = 'http://localhost:4000/api/';
 
 export const commonPara = {
@@ -6,9 +7,7 @@ export const commonPara = {
   token: localStorage.getItem('tk'),
 };
 
-export const reqPost = function(url: string, para: object) {
-  return request(domain + url, {
+export const reqPost = (url: string, para: object) => request(domain + url, {
     method: 'post',
     data: Object.assign(para, commonPara),
   });
-};
