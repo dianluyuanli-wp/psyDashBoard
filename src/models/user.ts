@@ -51,7 +51,7 @@ const UserModel: UserModelType = {
       const response = yield call(myQueryCurrent, payload);
       yield put({
         type: 'saveCurrentUser',
-        payload: response,
+        payload: response?.data ? JSON.parse(response.data[0]) : {},
       });
     },
   },
@@ -60,7 +60,7 @@ const UserModel: UserModelType = {
     saveCurrentUser(state, action) {
       return {
         ...state,
-        currentUser: action.payload ? JSON.parse(action.payload.data[0]) : {},
+        currentUser: action.payload,
       };
     },
     changeNotifyCount(

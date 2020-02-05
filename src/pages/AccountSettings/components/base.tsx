@@ -4,6 +4,7 @@ import '@ant-design/compatible/assets/index.css';
 import { Button, Input, Upload, message } from 'antd';
 import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
 import React, { Component, Fragment } from 'react';
+import { Dispatch } from 'redux';
 
 import { FormComponentProps } from '@ant-design/compatible/es/form';
 import { connect } from 'dva';
@@ -50,6 +51,7 @@ const validatorPhone = (rule: any, value: string, callback: (message?: string) =
 
 interface BaseViewProps extends FormComponentProps {
   currentUser?: CurrentUser;
+  dispatch: Dispatch<any>;
   accessToken: string;
 }
 
@@ -95,6 +97,12 @@ class BaseView extends Component<BaseViewProps> {
         message.success(formatMessage({ id: 'accountsettings.basic.update.success' }));
       }
     });
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'user/saveCurrentUser',
+      payload: Object.assign(this.props.currentUser, form.getFieldsValue())
+    });
+    //  console.log(form.getFieldsValue());
   };
 
   render() {

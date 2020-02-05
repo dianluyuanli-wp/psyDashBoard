@@ -14,7 +14,7 @@ export interface QueryCurrentInfo {
 }
 
 export async function login(params: LoginParamsType): Promise<any> {
-  const url = domain + 'login';
+  const url = `${domain}login`;
   return request(url, {
     method: 'post',
     data: params,
@@ -22,5 +22,5 @@ export async function login(params: LoginParamsType): Promise<any> {
 }
 
 export async function myQueryCurrent(params: QueryCurrentInfo): Promise<any> {
-  return await reqPost('currentUser', params);
+  return reqPost('currentUser', params);
 }

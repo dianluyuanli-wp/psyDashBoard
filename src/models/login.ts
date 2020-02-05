@@ -4,7 +4,6 @@ import { stringify } from 'querystring';
 import router from 'umi/router';
 
 //  import { fakeAccountLogin } from '@/services/login';
-import jwt from 'jwt-simple';
 import { login } from '@/services/userInfo';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
@@ -85,8 +84,6 @@ const Model: LoginModelType = {
       setAuthority(payload.currentAuthority);
       localStorage.setItem('tk', payload.accessToken);
       localStorage.setItem('name', payload.name);
-      let aa = jwt.decode(payload.accessToken, 'xiaohuli');
-      console.log(aa, new Date(aa.tokenTimeStamp));
       return {
         ...state,
         status: payload.status,
