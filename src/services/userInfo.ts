@@ -24,3 +24,14 @@ export async function login(params: LoginParamsType): Promise<any> {
 export async function myQueryCurrent(params: QueryCurrentInfo): Promise<any> {
   return reqPost('currentUser', params);
 }
+
+export interface userPara {
+  email: string;
+  showName: string;
+  userInfo: string;
+  phone: string;
+}
+
+export function updateUserInfo(params: userPara) {
+  return reqPost('updateUser', params);
+}
