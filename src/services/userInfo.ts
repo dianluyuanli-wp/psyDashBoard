@@ -35,3 +35,11 @@ export interface userPara {
 export function updateUserInfo(params: userPara) {
   return reqPost('updateUser', params);
 }
+
+export interface avatar {
+  base64: string;
+}
+
+export function updateAvatar(para: avatar) {
+  return reqPost('updateAvatar', para);
+}

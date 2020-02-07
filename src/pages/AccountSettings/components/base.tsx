@@ -11,15 +11,37 @@ import { connect } from 'dva';
 import { CurrentUser } from '../data.d';
 import PhoneView from './PhoneView';
 import styles from './BaseView.less';
-import { updateUserInfo, userPara } from '@/services/userInfo';
+import { updateUserInfo, userPara, updateAvatar } from '@/services/userInfo';
 import { ConnectState } from '@/models/connect';
 
 const FormItem = Form.Item;
 
 //  UploadChangeParam<UploadFile<any>>
 function handelUpload(info) {
+  if (info.file.status === 'uploading') {
+    return;
+  }
+  if (info.file.status === 'done') {
+    // Get this url from response in real world.
+    //  setState是异步的，要通过回调的形式来调用cropper
+    getBase64(info.file.originFileObj, imageUrl => {
+        // this.setState({
+        //   imageUrl,
+        //   loading: false,
+        // }, this.getCropper),
+        updateAvatar({ base64: imageUrl });
+        console.log(imageUrl);
+      }
+    );
+  }
   console.log(info);
-} 
+}
+
+function getBase64(img, callback) {
+  const reader = new FileReader();
+  reader.addEventListener('load', () => callback(reader.result));
+  reader.readAsDataURL(img);
+}
 
 // 头像组件 方便以后独立，增加裁剪之类的功能
 const AvatarView = ({ avatar }: { avatar: string }) => (
