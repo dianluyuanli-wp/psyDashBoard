@@ -11,9 +11,15 @@ import { connect } from 'dva';
 import { CurrentUser } from '../data.d';
 import PhoneView from './PhoneView';
 import styles from './BaseView.less';
+import { updateUserInfo, userPara } from '@/services/userInfo';
 import { ConnectState } from '@/models/connect';
 
 const FormItem = Form.Item;
+
+//  UploadChangeParam<UploadFile<any>>
+function handelUpload(info) {
+  console.log(info);
+} 
 
 // 头像组件 方便以后独立，增加裁剪之类的功能
 const AvatarView = ({ avatar }: { avatar: string }) => (
@@ -24,7 +30,7 @@ const AvatarView = ({ avatar }: { avatar: string }) => (
     <div className={styles.avatar}>
       <img src={avatar} alt="avatar" />
     </div>
-    <Upload showUploadList={false}>
+    <Upload onChange={handelUpload} showUploadList={false}>
       <div className={styles.button_view}>
         <Button>
           <UploadOutlined />
@@ -89,19 +95,24 @@ class BaseView extends Component<BaseViewProps> {
     this.view = ref;
   };
 
-  handlerSubmit = (event: React.MouseEvent) => {
+  handlerSubmit = async (event: React.MouseEvent) => {
     event.preventDefault();
     const { form } = this.props;
     form.validateFields(err => {
       if (!err) {
-        message.success(formatMessage({ id: 'accountsettings.basic.update.success' }));
+        //  message.success(formatMessage({ id: 'accountsettings.basic.update.success' }));
       }
     });
     const { dispatch } = this.props;
+    const updateObj = form.getFieldsValue();
     dispatch({
       type: 'user/saveCurrentUser',
-      payload: Object.assign(this.props.currentUser, form.getFieldsValue())
+      payload: Object.assign(this.props.currentUser, updateObj)
     });
+    const res = await updateUserInfo(updateObj as userPara);
+    if (res.errmsg === 'ok') {
+      message.success(formatMessage({ id: 'accountsettings.basic.update.success' }));
+    }
     //  console.log(form.getFieldsValue());
   };
 
@@ -124,7 +135,7 @@ class BaseView extends Component<BaseViewProps> {
               })(<Input />)}
             </FormItem>
             <FormItem label={formatMessage({ id: 'accountsettings.basic.nickname' })}>
-              {getFieldDecorator('name', {
+              {getFieldDecorator('showName', {
                 rules: [
                   {
                     required: true,
