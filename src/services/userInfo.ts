@@ -26,10 +26,11 @@ export async function myQueryCurrent(params: QueryCurrentInfo): Promise<any> {
 }
 
 export interface userPara {
-  email: string;
-  showName: string;
-  userInfo: string;
-  phone: string;
+  email?: string;
+  showName?: string;
+  userInfo?: string;
+  phone?: string;
+  avatar?: string;
 }
 
 export function updateUserInfo(params: userPara) {
@@ -37,7 +38,7 @@ export function updateUserInfo(params: userPara) {
 }
 
 export interface avatar {
-  base64: string;
+  base64: string | ArrayBuffer | null;
 }
 
 export function updateAvatar(para: avatar) {
