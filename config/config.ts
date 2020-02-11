@@ -1,8 +1,8 @@
 import { IConfig, IPlugin } from 'umi-types';
 import slash from 'slash2';
 import defaultSettings from './defaultSettings'; // https://umijs.org/config/
-import themePluginConfig from './themePluginConfig';
 
+import themePluginConfig from './themePluginConfig';
 const { pwa } = defaultSettings; // preview.pro.ant.design only do not use in your production ;
 // preview.pro.ant.design 专用环境变量，请不要在你的项目中使用它。
 
@@ -122,6 +122,13 @@ export default {
               icon: 'smile',
               path: '/accountsettings',
               component: './AccountSettings',
+            },
+            {
+              name: '空白页面',
+              icon: 'smile',
+              path: '/emptypage',
+              authority: ['manager'],
+              component: './EmptyPage',
             }, // {
             //   name: '个人中心',
             //   icon: 'smile',
@@ -162,7 +169,7 @@ export default {
         resourcePath: string;
       },
       _: string,
-      localName: string,
+      localName: string
     ) => {
       if (
         context.resourcePath.includes('node_modules') ||
