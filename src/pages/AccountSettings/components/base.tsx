@@ -2,6 +2,7 @@ import { UploadOutlined } from '@ant-design/icons';
 import { Form } from '@ant-design/compatible';
 import '@ant-design/compatible/assets/index.css';
 import { Button, Input, Upload, message } from 'antd';
+import { UploadChangeParam, RcFile } from 'antd/lib/upload/interface';
 import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
 import React, { Component, Fragment } from 'react';
 import { Dispatch } from 'redux';
@@ -16,55 +17,20 @@ import { ConnectState } from '@/models/connect';
 
 const FormItem = Form.Item;
 
-//  UploadChangeParam<UploadFile<any>>
-function handelUpload(info) {
-  if (info.file.status === 'uploading') {
-    return;
+function beforeUpload(file: RcFile) {
+  const isLt2M = file.size / 1024 / 1024 < 2;
+  if (!isLt2M) {
+    message.error('Image must smaller than 2MB!');
   }
-  if (info.file.status === 'done') {
-    // Get this url from response in real world.
-    //  setState是异步的，要通过回调的形式来调用cropper
-    getBase64(info.file.originFileObj, imageUrl => {
-        // this.setState({
-        //   imageUrl,
-        //   loading: false,
-        // }, this.getCropper),
-        updateAvatar({ base64: imageUrl });
-        console.log(imageUrl);
-      }
-    );
-  }
-  console.log(info);
+  return isLt2M;
 }
-
-function getBase64(img, callback) {
+function getBase64(img: File | Blob | undefined, callback: Function) {
   const reader = new FileReader();
   reader.addEventListener('load', () => callback(reader.result));
-  reader.readAsDataURL(img);
+  if (img) {
+    reader.readAsDataURL(img);
+  }
 }
-
-// 头像组件 方便以后独立，增加裁剪之类的功能
-const AvatarView = ({ avatar }: { avatar: string }) => (
-  <Fragment>
-    <div className={styles.avatar_title}>
-      <FormattedMessage id="accountsettings.basic.avatar" defaultMessage="Avatar" />
-    </div>
-    <div className={styles.avatar}>
-      <img src={avatar} alt="avatar" />
-    </div>
-    <Upload onChange={handelUpload} showUploadList={false}>
-      <div className={styles.button_view}>
-        <Button>
-          <UploadOutlined />
-          <FormattedMessage
-            id="accountsettings.basic.change-avatar"
-            defaultMessage="Change avatar"
-          />
-        </Button>
-      </div>
-    </Upload>
-  </Fragment>
-);
 
 const validatorPhone = (rule: any, value: string, callback: (message?: string) => void) => {
   const values = value.split('-');
@@ -80,6 +46,7 @@ const validatorPhone = (rule: any, value: string, callback: (message?: string) =
 interface BaseViewProps extends FormComponentProps {
   currentUser?: CurrentUser;
   dispatch: Dispatch<any>;
+  avatar?: string;
   accessToken: string;
 }
 
@@ -135,8 +102,49 @@ class BaseView extends Component<BaseViewProps> {
     if (res.errmsg === 'ok') {
       message.success(formatMessage({ id: 'accountsettings.basic.update.success' }));
     }
-    //  console.log(form.getFieldsValue());
   };
+
+  // 头像组件 方便以后独立，增加裁剪之类的功能
+  AvatarView = (avatar: string) => (
+    <Fragment>
+      <div className={styles.avatar_title}>
+        <FormattedMessage id="accountsettings.basic.avatar" defaultMessage="Avatar" />
+      </div>
+      <div className={styles.avatar}>
+        <img src={avatar} alt="avatar" />
+      </div>
+      <Upload onChange={this.handelUpload} beforeUpload={beforeUpload} showUploadList={false}>
+        <div className={styles.button_view}>
+          <Button>
+            <UploadOutlined />
+            <FormattedMessage
+              id="accountsettings.basic.change-avatar"
+              defaultMessage="Change avatar"
+            />
+          </Button>
+        </div>
+      </Upload>
+    </Fragment>
+  );
+
+  handelUpload = (info: UploadChangeParam) => {
+    if (info.file.status === 'uploading') {
+      return;
+    }
+    if (info.file.status === 'done') {
+      getBase64(info.file.originFileObj, async (imageUrl: string | ArrayBuffer | null) => {
+          const res = await updateAvatar({ base64: imageUrl });
+          const imgUrl: string = res.file_list[0].download_url;
+          const updateObj = Object.assign(this.props.currentUser, { avatar: imgUrl });
+          this.props.dispatch({
+            type: 'user/saveCurrentUser',
+            payload: updateObj
+          });
+          await updateUserInfo(updateObj);
+        }
+      );
+    }
+  }
 
   render() {
     const {
@@ -201,7 +209,7 @@ class BaseView extends Component<BaseViewProps> {
           </Form>
         </div>
         <div className={styles.right}>
-          <AvatarView avatar={this.getAvatarURL()} />
+          {this.AvatarView(this.getAvatarURL())}
         </div>
       </div>
     );
@@ -212,6 +220,7 @@ export default connect(
   ({ user, login }: ConnectState) =>
   ({
     currentUser: user.currentUser,
+    avatar: user.currentUser?.avatar,
     accessToken: login.accessToken,
   } as BaseViewProps),
 )(Form.create<BaseViewProps>()(BaseView));

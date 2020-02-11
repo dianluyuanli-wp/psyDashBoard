@@ -97,6 +97,7 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
     }
     setCurrentPage(1);
     setTol(total + 1);
+    // eslint-disable-next-line @typescript-eslint/camelcase
     const { errcode, id_list } = await addPeriod({ ...rest, counselorId: currentUser.name || '' });
     if (errcode === 0) {
       setPeriod({ type: 'key', value: id_list[0] });
@@ -135,10 +136,10 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
             <DatePicker disabledDate={disableDate} onChange={(_, string) => change.bind(null, 'date', _, string)} />
           </FItem>
           <FItem label="开始时间">
-            <TimePicker format='HH:mm' hideDisabledOptions disabledHours={disableStartOur} onChange={change.bind(null, 'startTime')} minuteStep={5} />
+            <TimePicker format='HH:mm' hideDisabledOptions disabledHours={disableStartOur} onChange={(value, dateString) => change('startTime', value, dateString)} minuteStep={5} />
           </FItem>
           <FItem label="结束时间">
-            <TimePicker format='HH:mm' hideDisabledOptions disabledHours={disableEndHour} disabledMinutes={disableEndMinute} onChange={change.bind(null, 'endTime')} minuteStep={5} />
+            <TimePicker format='HH:mm' hideDisabledOptions disabledHours={disableEndHour} disabledMinutes={disableEndMinute} onChange={(value, dateString) => change('endTime', value, dateString)} minuteStep={5} />
           </FItem>
           <Button className={styles.newRecord} onClick={but} type='primary'>
             新建
