@@ -88,6 +88,7 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
 
   async function but() {
     const { key, periodId, ...rest } = period;
+    console.log(rest);
     if (!rest.date || !rest.startTime || !rest.endTime) {
       notification.error({
         message: `数据未填写完整`,
@@ -133,13 +134,13 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
       <Card title="添加咨询时段">
         <Form className={styles.range}>
           <FItem label="咨询日期">
-            <DatePicker disabledDate={disableDate} onChange={(_, string) => change.bind(null, 'date', _, string)} />
+            <DatePicker disabledDate={disableDate} onChange={(_, string) => change('date', _, string)} />
           </FItem>
           <FItem label="开始时间">
-            <TimePicker format='HH:mm' hideDisabledOptions disabledHours={disableStartOur} onChange={(value, dateString) => change('startTime', value, dateString)} minuteStep={5} />
+            <TimePicker format='HH:mm' hideDisabledOptions disabledHours={disableStartOur} onChange={(value, timeString) => change('startTime', value, timeString)} minuteStep={5} />
           </FItem>
           <FItem label="结束时间">
-            <TimePicker format='HH:mm' hideDisabledOptions disabledHours={disableEndHour} disabledMinutes={disableEndMinute} onChange={(value, dateString) => change('endTime', value, dateString)} minuteStep={5} />
+            <TimePicker format='HH:mm' hideDisabledOptions disabledHours={disableEndHour} disabledMinutes={disableEndMinute} onChange={(value, timeString) => change('endTime', value, timeString)} minuteStep={5} />
           </FItem>
           <Button className={styles.newRecord} onClick={but} type='primary'>
             新建
