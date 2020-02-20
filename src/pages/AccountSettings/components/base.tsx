@@ -1,7 +1,7 @@
 import { UploadOutlined } from '@ant-design/icons';
 import { Form } from '@ant-design/compatible';
 import '@ant-design/compatible/assets/index.css';
-import { Button, Input, Upload, message } from 'antd';
+import { Button, Input, Upload, message, Collapse } from 'antd';
 import { UploadChangeParam, RcFile } from 'antd/lib/upload/interface';
 import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
 import React, { Component, Fragment } from 'react';
@@ -16,6 +16,7 @@ import { updateUserInfo, userPara, updateAvatar } from '@/services/userInfo';
 import { ConnectState } from '@/models/connect';
 
 const FormItem = Form.Item;
+const { Panel } = Collapse;
 
 function beforeUpload(file: RcFile) {
   const isLt2M = file.size / 1024 / 1024 < 2;
@@ -50,8 +51,25 @@ interface BaseViewProps extends FormComponentProps {
   accessToken: string;
 }
 
+interface ComState {
+  oldPass: string,
+  newPass1: string,
+  newPass2: string
+}
+
 class BaseView extends Component<BaseViewProps> {
   view: HTMLDivElement | undefined = undefined;
+
+  state: ComState;
+
+  constructor(props: BaseViewProps) {
+    super(props);
+    this.state = {
+      oldPass: '',
+      newPass1: '',
+      newPass2: ''
+    };
+  }
 
   componentDidMount() {
     this.setBaseInfo();
@@ -146,6 +164,21 @@ class BaseView extends Component<BaseViewProps> {
     }
   }
 
+  uploadPass = () => {
+    const { newPass1, newPass2, oldPass } = this.state;
+    if(newPass1 !== newPass2) {
+      message.warn('输入的新密码必须一致！');
+    } else {
+      console.log(oldPass);
+    }
+  }
+
+  changePass(type: string, event: React.ChangeEvent<HTMLInputElement>) {
+    this.setState({
+      [type]: event.target.value
+    })
+  }
+
   render() {
     const {
       form: { getFieldDecorator },
@@ -200,6 +233,14 @@ class BaseView extends Component<BaseViewProps> {
                 ],
               })(<PhoneView />)}
             </FormItem>
+            <Collapse>
+              <Panel header='修改密码' key='1'>
+                <Input.Password addonBefore={<span className={styles.spanAdd}>original password</span>} onChange={(event: React.ChangeEvent<HTMLInputElement>) => this.changePass('oldPass', event)} placeholder='Enter old password' style={{ marginTop: '.2rem' }}/>
+                <Input.Password addonBefore={<span className={styles.spanAdd}>new password</span>} placeholder='Enter new password' onChange={(event: React.ChangeEvent<HTMLInputElement>) => this.changePass('newPass1', event)}/>
+                <Input.Password addonBefore={<span className={styles.spanAdd}>confirm password</span>} placeholder='Enter new password again' onChange={(event: React.ChangeEvent<HTMLInputElement>) => this.changePass('newPass2', event)}/>
+                <Button type='primary' onClick={this.uploadPass}>修改密码</Button>
+              </Panel>
+            </Collapse>
             <Button type="primary" onClick={this.handlerSubmit}>
               <FormattedMessage
                 id="accountsettings.basic.update"
