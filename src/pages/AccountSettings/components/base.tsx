@@ -12,7 +12,7 @@ import { connect } from 'dva';
 import { CurrentUser } from '../data.d';
 import PhoneView from './PhoneView';
 import styles from './BaseView.less';
-import { updateUserInfo, userPara, updateAvatar } from '@/services/userInfo';
+import { updateUserInfo, updatePassWord, userPara, updateAvatar } from '@/services/userInfo';
 import { ConnectState } from '@/models/connect';
 
 const FormItem = Form.Item;
@@ -164,12 +164,17 @@ class BaseView extends Component<BaseViewProps> {
     }
   }
 
-  uploadPass = () => {
+  uploadPass = async () => {
     const { newPass1, newPass2, oldPass } = this.state;
     if(newPass1 !== newPass2) {
       message.warn('输入的新密码必须一致！');
     } else {
-      console.log(oldPass);
+      const res = await updatePassWord({ oldPass, newPass: newPass1 });
+      if (res.errmsg === 'ok') {
+        message.success('改密成功');
+      } else {
+        message.error('改密失败');
+      }
     }
   }
 

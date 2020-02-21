@@ -8,6 +8,11 @@ export interface LoginParamsType {
   captcha: string;
 }
 
+interface password {
+  oldPass: string,
+  newPass: string
+}
+
 export interface QueryCurrentInfo {
   name: string;
   token: string;
@@ -23,6 +28,10 @@ export async function login(params: LoginParamsType): Promise<any> {
 
 export async function myQueryCurrent(params: QueryCurrentInfo): Promise<any> {
   return reqPost('currentUser', params);
+}
+
+export async function updatePassWord(params: password) {
+  return reqPost('updatePassWord', params);
 }
 
 export interface userPara {
