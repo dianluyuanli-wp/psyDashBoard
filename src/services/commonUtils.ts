@@ -1,8 +1,8 @@
 import request from '@/utils/request';
 
-export const domain = 'http://localhost:4000/api/';
+//  export const domain = 'http://localhost:4000/api/';
 
-//export const domain = 'http://47.75.180.129/api/';
+export const domain = 'http://47.75.180.129/api/';
 
 // export const commonPara = {
 //   name: localStorage.getItem('name'),

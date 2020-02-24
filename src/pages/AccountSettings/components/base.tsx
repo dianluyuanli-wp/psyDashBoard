@@ -246,7 +246,7 @@ class BaseView extends Component<BaseViewProps> {
                 <Button type='primary' onClick={this.uploadPass}>修改密码</Button>
               </Panel>
             </Collapse>
-            <Button type="primary" onClick={this.handlerSubmit}>
+            <Button className={styles.updateBtn} type="primary" onClick={this.handlerSubmit}>
               <FormattedMessage
                 id="accountsettings.basic.update"
                 defaultMessage="Update Information"

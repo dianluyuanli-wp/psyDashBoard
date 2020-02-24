@@ -7,7 +7,7 @@ interface UpdatePara {
 
 //  更新状态
 export async function updateStatus(params: UpdatePara) {
-  return await reqPost('updateStatus', params);
+  return reqPost('updateStatus', params);
 }
 
 interface QueryCommonnPara {
@@ -20,5 +20,5 @@ interface GetListProp extends QueryCommonnPara {
 
 //  获取自己的预约列表
 export async function getList(params: GetListProp): Promise<any> {
-  return await reqPost('getInterviewerList', params);
+  return reqPost('getInterviewerList', params);
 }
