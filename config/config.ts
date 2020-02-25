@@ -1,5 +1,6 @@
 import { IConfig, IPlugin } from 'umi-types';
 import slash from 'slash2';
+import { webpackPlugin } from './plugin.config';
 import defaultSettings from './defaultSettings'; // https://umijs.org/config/
 
 import themePluginConfig from './themePluginConfig';
@@ -195,7 +196,8 @@ export default {
   },
   manifest: {
     basePath: '/',
-  }, // chainWebpack: webpackPlugin,
+  },
+  chainWebpack: webpackPlugin,
   // proxy: {
   //   '/server/api/': {
   //     target: 'https://preview.pro.ant.design/',

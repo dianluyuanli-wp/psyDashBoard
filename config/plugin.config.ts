@@ -22,6 +22,8 @@ function getModulePackageName(module: { context: string }) {
 }
 
 export const webpackPlugin = (config: IWebpackChainConfig) => {
+  config.output.chunkFilename('[name].[contenthash].wang.js');
+  config.output.filename('[name].bundle.js');
   // optimize chunks
   config.optimization
     // share the same chunks across different modules
