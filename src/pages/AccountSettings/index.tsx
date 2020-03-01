@@ -6,8 +6,6 @@ import { GridContent } from '@ant-design/pro-layout';
 import { Menu } from 'antd';
 import { connect } from 'dva';
 import BaseView from './components/base';
-//  import BindingView from './components/binding';
-//  import { CurrentUser } from './data.d';
 import { CurrentUser } from '@/models/user';
 // import NotificationView from './components/notification';
 // import SecurityView from './components/security';

@@ -9,7 +9,7 @@ import { Dispatch } from 'redux';
 
 import { FormComponentProps } from '@ant-design/compatible/es/form';
 import { connect } from 'dva';
-import { CurrentUser } from '../data.d';
+import { CurrentUser } from '@/models/user';
 import PhoneView from './PhoneView';
 import styles from './BaseView.less';
 import { updateUserInfo, updatePassWord, userPara, updateAvatar } from '@/services/userInfo';

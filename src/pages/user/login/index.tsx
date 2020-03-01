@@ -1,8 +1,8 @@
 //  import { AlipayCircleOutlined, TaobaoCircleOutlined, WeiboCircleOutlined } from '@ant-design/icons';
-import { Alert, Checkbox } from 'antd';
+import { Alert } from 'antd';
 import React, { useState } from 'react';
 import { Dispatch, AnyAction } from 'redux';
-import Link from 'umi/link';
+//  import Link from 'umi/link';
 import { connect } from 'dva';
 import { StateType } from '@/models/login';
 import styles from './style.less';
@@ -33,7 +33,7 @@ const LoginMessage: React.FC<{
 const Login: React.FC<LoginProps> = props => {
   const { userLogin = {}, submitting } = props;
   const { status, type: loginType } = userLogin;
-  const [autoLogin, setAutoLogin] = useState(true);
+  //  const [autoLogin, setAutoLogin] = useState(true);
   const [type, setType] = useState<string>('account');
 
   const handleSubmit = (values: LoginParamsType) => {
@@ -107,7 +107,7 @@ const Login: React.FC<LoginProps> = props => {
             ]}
           />
         </Tab> */}
-        <div>
+        {/* <div>
           <Checkbox checked={autoLogin} onChange={e => setAutoLogin(e.target.checked)}>
             自动登录
           </Checkbox>
@@ -118,16 +118,16 @@ const Login: React.FC<LoginProps> = props => {
           >
             忘记密码
           </a>
-        </div>
+        </div> */}
         <Submit loading={submitting}>登录</Submit>
         <div className={styles.other}>
           {/* 其他登录方式
           <AlipayCircleOutlined className={styles.icon} />
           <TaobaoCircleOutlined className={styles.icon} />
           <WeiboCircleOutlined className={styles.icon} /> */}
-          <Link className={styles.register} to="/user/register">
+          {/* <Link className={styles.register} to="/user/register">
             注册账户
-          </Link>
+          </Link> */}
         </div>
       </LoginFrom>
     </div>

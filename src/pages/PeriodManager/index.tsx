@@ -12,6 +12,8 @@ import { ConnectState } from '@/models/connect';
 
 const FItem = Form.Item;
 
+export const SINGLE_PAGE_SIZE = 10;
+
 export interface Period {
   date: string;
   startTime: string;
@@ -63,7 +65,7 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
 
   useEffect(() => {
     async function getList() {
-      const res = await getPeriod({ counselorId: currentUser.name || '', offset: 0, size: 3 });
+      const res = await getPeriod({ counselorId: currentUser.name || '', offset: 0, size: SINGLE_PAGE_SIZE });
       const List = parseList(res);
       setPList({ type: 'init', payload: {} as Period, list: List });
       setTol(res.pager.Total);
@@ -88,7 +90,6 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
 
   async function but() {
     const { key, periodId, ...rest } = period;
-    console.log(rest);
     if (!rest.date || !rest.startTime || !rest.endTime) {
       notification.error({
         message: `数据未填写完整`,

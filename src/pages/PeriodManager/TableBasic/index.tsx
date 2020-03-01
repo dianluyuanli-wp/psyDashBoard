@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './index.less';
 import { Table, Divider } from 'antd';
 import { getPeriod } from '@/services/period';
-import { Period, PeriodListAction, parseList } from '../index';
+import { Period, PeriodListAction, parseList, SINGLE_PAGE_SIZE } from '../index';
 import { ActionText } from '@/components/smallCom/ActionText';
 
 const columns = [
@@ -31,9 +31,9 @@ const columns = [
     key: 'action',
     render: text => (
       <span>
-        <ActionText text={'invite'} />
+        <ActionText text='invite' />
         <Divider type="vertical" />
-        <ActionText text={'Delete'} />
+        <ActionText text='Delete' />
       </span>
     ),
   },
@@ -44,17 +44,17 @@ export default (props: { list: Array<Period>,
     action: React.Dispatch<PeriodListAction>,
     total: number }) => {
   const { list, action, total, user, currentPage, setCurrentPage } = props;
-  const detail = async function(page: number, pageSize?: number) {
-    const res = await getPeriod({ counselorId: user, offset: 3 * (page - 1), size: 3})
-    const list = parseList(res);
+  async function detail(page: number) {
+    const res = await getPeriod({ counselorId: user, offset: SINGLE_PAGE_SIZE * (page - 1), size: SINGLE_PAGE_SIZE})
+    const showList = parseList(res);
     setCurrentPage(page);
-    action({ type: 'init', payload: {} as Period, list })
+    action({ type: 'init', payload: {} as Period, list: showList })
   }
   const paginaConfig = {    
     onChange: detail,
-    total: total,
+    total,
     current: currentPage,
-    pageSize: 3
+    pageSize: SINGLE_PAGE_SIZE
   };
   return (
     <div className={styles.container}>
