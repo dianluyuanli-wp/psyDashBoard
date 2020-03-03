@@ -1,6 +1,6 @@
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import React, { useEffect, useState, useReducer } from 'react';
-import { Card, DatePicker, TimePicker, Form, Button, notification } from 'antd';
+import { Card, DatePicker, TimePicker, Form, Button, notification, Select } from 'antd';
 import styles from './index.less';
 import TableBasic from './TableBasic';
 import { CurrentUser } from '@/models/user';
@@ -11,6 +11,7 @@ import { connect } from 'dva';
 import { ConnectState } from '@/models/connect';
 
 const FItem = Form.Item;
+const { Option } = Select;
 
 export const SINGLE_PAGE_SIZE = 10;
 
@@ -19,9 +20,13 @@ export interface Period {
   startTime: string;
   endTime: string;
   periodId: string;
+  status: 'on' | 'off';
+  count: number;
   key: string;
   _id?: string;
 }
+
+const targetTimeArray = [8,9,10,11,14,15,16,17];
 
 interface PeriodAction {
   type: 'date' | 'startTime' | 'endTime' | 'periodId' | 'key';
@@ -58,6 +63,7 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
     const actionMap = {
       add: () => [action.payload].concat([...state]),
       init: () => action.list,
+      //  update: ()
     };
     return actionMap[action.type]();
   };
@@ -81,12 +87,20 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
     startTime: '',
     endTime: '',
     periodId: '',
+    status: 'off',
+    count: 1,
     key: '',
   });
 
   function change(type: 'date' | 'startTime' | 'endTime', _: moment.Moment | null, string: string) {
     setPeriod({ type, value: string });
   };
+
+  function changePeriodTime(value: string) {
+    const temp = `0${value}`.slice(-2);
+    setPeriod({ type: 'startTime', value: `${temp}:00` });
+    setPeriod({ type: 'endTime', value: `${temp}:50` });
+  }
 
   async function but() {
     const { key, periodId, ...rest } = period;
@@ -112,23 +126,23 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
       return date < moment();
   }
 
-  //  开始时间从八点开始
-  function disableStartOur() {
-    return new Array(8).fill('').map((item, index) => index);
-  }
-  //  结束小时置灰
-  function disableEndHour() {
-    return new Array(24).fill('').map((item, index) => index)
-      .filter(item => item < parseInt(period.startTime.split(':')[0], 10));
-  }
-  //  结束分钟置灰
-  function disableEndMinute(selectHour: number) {
-    return new Array(60).fill('').map((item, index) => index)
-      .filter(item => {
-        const [hour, minute] = period.startTime.split(':').map(sitem => parseInt(sitem, 10));
-        return selectHour > hour ? false : item <= minute;
-      })
-  }
+  // //  开始时间从八点开始
+  // function disableStartOur() {
+  //   return new Array(8).fill('').map((item, index) => index);
+  // }
+  // //  结束小时置灰
+  // function disableEndHour() {
+  //   return new Array(24).fill('').map((item, index) => index)
+  //     .filter(item => item < parseInt(period.startTime.split(':')[0], 10));
+  // }
+  // //  结束分钟置灰
+  // function disableEndMinute(selectHour: number) {
+  //   return new Array(60).fill('').map((item, index) => index)
+  //     .filter(item => {
+  //       const [hour, minute] = period.startTime.split(':').map(sitem => parseInt(sitem, 10));
+  //       return selectHour > hour ? false : item <= minute;
+  //     })
+  // }
 
   return (
     <PageHeaderWrapper className={styles.main}>
@@ -137,11 +151,16 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
           <FItem label="咨询日期">
             <DatePicker disabledDate={disableDate} onChange={(_, string) => change('date', _, string)} />
           </FItem>
-          <FItem label="开始时间">
+          {/* <FItem label="开始时间">
             <TimePicker format='HH:mm' hideDisabledOptions disabledHours={disableStartOur} onChange={(value, timeString) => change('startTime', value, timeString)} minuteStep={5} />
           </FItem>
           <FItem label="结束时间">
             <TimePicker format='HH:mm' hideDisabledOptions disabledHours={disableEndHour} disabledMinutes={disableEndMinute} onChange={(value, timeString) => change('endTime', value, timeString)} minuteStep={5} />
+          </FItem> */}
+          <FItem label="预约时段">
+            <Select placeholder="请选择时段" onChange={(value: string) => changePeriodTime(value)}>
+              {targetTimeArray.map(item => <Option key={item} value={item}>{`0${item}`.slice(-2)}:00 - {`0${item}`.slice(-2)}:50</Option>)}
+            </Select>
           </FItem>
           <Button className={styles.newRecord} onClick={but} type='primary'>
             新建

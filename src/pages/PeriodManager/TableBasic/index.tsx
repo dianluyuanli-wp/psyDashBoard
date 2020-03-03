@@ -12,32 +12,36 @@ const columns = [
     key: 'date',
   },
   {
-    title: '开始时间',
-    dataIndex: 'startTime',
-    key: 'startTime',
+    title: '咨询时段',
+    key: 'time',
+    render: (item: Period) => `${item.startTime}  :  ${item.endTime}`
   },
   {
-    title: '结束时间',
-    dataIndex: 'endTime',
-    key: 'endTime',
+    title: '状态',
+    key: 'status',
+    render: (item: Period) => item.status === 'on' ? '已上架' : '已下架'
   },
-  // {
-  //   title: "Tags",
-  //   key: "tags",
-  //   dataIndex: "tags",
-  // },
+  {
+    title: '预约情况',
+    key: 'ocupy',
+    render: (item: Period) => item.count ? '有预约' : '无人预约'
+  },
   {
     title: 'Action',
     key: 'action',
-    render: text => (
-      <span>
-        <ActionText text='invite' />
+    render: (item: Period) => {
+      return <span>
+        <ActionText onClick={() => clickAction('on', item.key)} text='上架' />
         <Divider type="vertical" />
-        <ActionText text='Delete' />
+        <ActionText onClick={() => clickAction('on', item.key)} text='下架' />
       </span>
-    ),
+    }
   },
 ];
+
+function clickAction(type: 'on' | 'off', id: string) {
+  console.log(type, id);
+}
 
 export default (props: { list: Array<Period>,
     currentPage: number, user: string, setCurrentPage: React.Dispatch<React.SetStateAction<number>>,
