@@ -1,6 +1,6 @@
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import React, { useEffect, useState, useReducer } from 'react';
-import { Card, DatePicker, TimePicker, Form, Button, notification, Select } from 'antd';
+import { Card, DatePicker, Form, Button, notification, Select } from 'antd';
 import styles from './index.less';
 import TableBasic from './TableBasic';
 import { CurrentUser } from '@/models/user';
@@ -34,9 +34,11 @@ interface PeriodAction {
 }
 
 export interface PeriodListAction {
-  type: 'add' | 'init';
-  payload: Period;
-  list: Array<Period>;
+  type: 'add' | 'init' | 'update';
+  id?: string;
+  action?: 'on' | 'off';
+  payload?: Period;
+  list?: Array<Period>;
 }
 
 interface PeriodManagerProps {
@@ -61,8 +63,14 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
 
   function listReducer(state: Array<Period>, action: PeriodListAction) {
     const actionMap = {
-      add: () => [action.payload].concat([...state]),
-      init: () => action.list,
+      add: () => (action?.payload ? [action.payload] : []).concat([...state]),
+      init: () => action?.list || [],
+      update: () => {
+        const index = state.findIndex(item => item.key === action.id);
+        const target = state[index];
+        target.status = target.status === 'on' ? 'off' : 'on';
+        return [...state.slice(0, index), target, ...state.slice(index + 1)];
+      },
       //  update: ()
     };
     return actionMap[action.type]();

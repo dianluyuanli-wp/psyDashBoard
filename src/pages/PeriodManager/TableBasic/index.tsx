@@ -1,11 +1,11 @@
 import React from 'react';
 import styles from './index.less';
-import { Table, Divider } from 'antd';
+import { Table } from 'antd';
 import { getPeriod } from '@/services/period';
 import { Period, PeriodListAction, parseList, SINGLE_PAGE_SIZE } from '../index';
 import { ActionText } from '@/components/smallCom/ActionText';
 
-const columns = [
+const columns = (action: React.Dispatch<PeriodListAction>) => [
   {
     title: '日期',
     dataIndex: 'date',
@@ -19,7 +19,11 @@ const columns = [
   {
     title: '状态',
     key: 'status',
-    render: (item: Period) => item.status === 'on' ? '已上架' : '已下架'
+    render: (item: Period) => {
+      const isOn = item.status === 'on';
+      const text = isOn ? '已上架' : '已下架';
+      return <span><ActionText style={{ color: isOn ? '' : 'red'}} text={text}/></span>
+    }
   },
   {
     title: '预约情况',
@@ -30,18 +34,13 @@ const columns = [
     title: 'Action',
     key: 'action',
     render: (item: Period) => {
+      const isOn = item.status === 'on';
       return <span>
-        <ActionText onClick={() => clickAction('on', item.key)} text='上架' />
-        <Divider type="vertical" />
-        <ActionText onClick={() => clickAction('on', item.key)} text='下架' />
+        <ActionText onClick={() => action({ type: 'update', id: item.key })} text={isOn ? '下架' : '上架'} />
       </span>
     }
   },
 ];
-
-function clickAction(type: 'on' | 'off', id: string) {
-  console.log(type, id);
-}
 
 export default (props: { list: Array<Period>,
     currentPage: number, user: string, setCurrentPage: React.Dispatch<React.SetStateAction<number>>,
@@ -63,7 +62,7 @@ export default (props: { list: Array<Period>,
   return (
     <div className={styles.container}>
       <div id="components-table-demo-basic">
-        <Table pagination={paginaConfig} columns={columns} dataSource={list} />
+        <Table pagination={paginaConfig} columns={columns(action)} dataSource={list} />
       </div>
     </div>
   );

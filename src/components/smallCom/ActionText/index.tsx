@@ -6,7 +6,7 @@ interface AProps {
   [props: string]: any;
 }
 
-export const ActionText = function(props: AProps) {
+export function ActionText(props: AProps) {
   const { text, ...rest } = props;
   return (
     <span {...rest} className={styles.action}>
