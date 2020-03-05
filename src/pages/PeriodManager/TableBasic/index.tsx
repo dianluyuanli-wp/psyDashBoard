@@ -28,7 +28,7 @@ const columns = (action: React.Dispatch<PeriodListAction>) => [
   {
     title: '预约情况',
     key: 'ocupy',
-    render: (item: Period) => item.count ? '有预约' : '无人预约'
+    render: (item: Period) => item.count === 0 ? '有预约' : '无人预约'
   },
   {
     title: 'Action',
@@ -36,7 +36,9 @@ const columns = (action: React.Dispatch<PeriodListAction>) => [
     render: (item: Period) => {
       const isOn = item.status === 'on';
       return <span>
-        <ActionText onClick={() => action({ type: 'update', id: item.key })} text={isOn ? '下架' : '上架'} />
+        <ActionText onClick={() => action({ type: 'update',
+        // eslint-disable-next-line no-underscore-dangle
+        id: item._id })} text={isOn ? '下架' : '上架'} />
       </span>
     }
   },

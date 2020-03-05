@@ -5,7 +5,7 @@ import styles from './index.less';
 import TableBasic from './TableBasic';
 import { CurrentUser } from '@/models/user';
 import moment from 'moment';
-import { addPeriod, getPeriod } from '@/services/period';
+import { addPeriod, getPeriod, updatePeriod } from '@/services/period';
 
 import { connect } from 'dva';
 import { ConnectState } from '@/models/connect';
@@ -19,11 +19,11 @@ export interface Period {
   date: string;
   startTime: string;
   endTime: string;
-  periodId: string;
   status: 'on' | 'off';
   count: number;
+  _id: string;
+  //  为了渲染tab的时候不报错，必须要有这个可用
   key: string;
-  _id?: string;
 }
 
 const targetTimeArray = [8,9,10,11,14,15,16,17];
@@ -51,7 +51,8 @@ export function parseList(res: any): Array<Period>{
   .map((item: string): Period => JSON.parse(item))
   .map(({ _id, ...rest }: Period) => ({
       ...rest,
-      key: _id,
+      _id,
+      key: _id
     } as Period)
   );
 }
@@ -66,9 +67,12 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
       add: () => (action?.payload ? [action.payload] : []).concat([...state]),
       init: () => action?.list || [],
       update: () => {
-        const index = state.findIndex(item => item.key === action.id);
+        // eslint-disable-next-line no-underscore-dangle
+        const index = state.findIndex(item => item._id === action.id);
         const target = state[index];
-        target.status = target.status === 'on' ? 'off' : 'on';
+        const { _id = '', status } = target;
+        target.status = status === 'on' ? 'off' : 'on';
+        updatePeriod({ _id, status: target.status });
         return [...state.slice(0, index), target, ...state.slice(index + 1)];
       },
       //  update: ()
@@ -94,10 +98,10 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
     date: '',
     startTime: '',
     endTime: '',
-    periodId: '',
     status: 'off',
     count: 1,
-    key: '',
+    _id: '',
+    key: ''
   });
 
   function change(type: 'date' | 'startTime' | 'endTime', _: moment.Moment | null, string: string) {
@@ -111,7 +115,7 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
   }
 
   async function but() {
-    const { key, periodId, ...rest } = period;
+    const { ...rest } = period;
     if (!rest.date || !rest.startTime || !rest.endTime) {
       notification.error({
         message: `数据未填写完整`,

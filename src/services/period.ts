@@ -20,3 +20,13 @@ interface PeriodParams {
 export async function addPeriod(params: PeriodParams): Promise<any> {
   return reqPost('addPeriod', params);
 }
+
+interface UpdatePeriodPara {
+  status?: 'on' | 'off',
+  count?: number,
+  _id: string
+}
+
+export async function updatePeriod(params: UpdatePeriodPara) {
+  return reqPost('updatePeriod', params);
+}
