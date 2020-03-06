@@ -72,6 +72,12 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
         const target = state[index];
         const { _id = '', status } = target;
         target.status = status === 'on' ? 'off' : 'on';
+        if (target.count === 0 && status === 'on') {
+          notification.error({
+            message: `已被预约无法下架`,
+          });
+          return state;
+        }
         updatePeriod({ _id, status: target.status });
         return [...state.slice(0, index), target, ...state.slice(index + 1)];
       },
