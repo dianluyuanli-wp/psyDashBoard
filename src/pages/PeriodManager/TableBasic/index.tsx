@@ -1,6 +1,6 @@
 import React from 'react';
-import styles from './index.less';
 import { Table } from 'antd';
+import styles from './index.less';
 import { getPeriod } from '@/services/period';
 import { Period, PeriodListAction, parseList, SINGLE_PAGE_SIZE } from '../index';
 import { ActionText } from '@/components/smallCom/ActionText';
@@ -36,9 +36,10 @@ const columns = (action: React.Dispatch<PeriodListAction>) => [
     render: (item: Period) => {
       const isOn = item.status === 'on';
       return <span>
-        <ActionText onClick={() => action({ type: 'update',
-        // eslint-disable-next-line no-underscore-dangle
-        id: item._id })} text={isOn ? '下架' : '上架'} />
+        <ActionText onClick={() => 
+          action({ type: 'update',
+          // eslint-disable-next-line no-underscore-dangle
+          id: item._id, action: isOn ? 'off' : 'on' })} text={isOn ? '下架' : '上架'} />
       </span>
     }
   },

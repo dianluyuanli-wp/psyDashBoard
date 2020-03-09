@@ -5,6 +5,7 @@ import styles from './index.less';
 import TableBasic from './TableBasic';
 import { CurrentUser } from '@/models/user';
 import moment from 'moment';
+//  import { throttle } from 'lodash';
 import { addPeriod, getPeriod, updatePeriod } from '@/services/period';
 
 import { connect } from 'dva';
@@ -62,26 +63,26 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
   const [total, setTol] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
 
-  function listReducer(state: Array<Period>, action: PeriodListAction) {
+function listReducer(state: Array<Period>, action: PeriodListAction) {
+    const dUpdate = () => {
+      // eslint-disable-next-line no-underscore-dangle
+      const index = state.findIndex(item => item._id === action.id);
+      const target = state[index];
+      const { _id = '', status } = target;
+      target.status = action.action || 'off';
+      if (target.count === 0 && status === 'on') {
+        notification.error({
+          message: `已被预约无法下架`,
+        });
+        return state;
+      }
+      updatePeriod({ _id, status: target.status });
+      return [...state.slice(0, index), target, ...state.slice(index + 1)];
+    };
     const actionMap = {
       add: () => (action?.payload ? [action.payload] : []).concat([...state]),
       init: () => action?.list || [],
-      update: () => {
-        // eslint-disable-next-line no-underscore-dangle
-        const index = state.findIndex(item => item._id === action.id);
-        const target = state[index];
-        const { _id = '', status } = target;
-        target.status = status === 'on' ? 'off' : 'on';
-        if (target.count === 0 && status === 'on') {
-          notification.error({
-            message: `已被预约无法下架`,
-          });
-          return state;
-        }
-        updatePeriod({ _id, status: target.status });
-        return [...state.slice(0, index), target, ...state.slice(index + 1)];
-      },
-      //  update: ()
+      update: dUpdate
     };
     return actionMap[action.type]();
   };
@@ -121,7 +122,7 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
   }
 
   async function but() {
-    const { ...rest } = period;
+    const { _id, key, ...rest } = period;
     if (!rest.date || !rest.startTime || !rest.endTime) {
       notification.error({
         message: `数据未填写完整`,
