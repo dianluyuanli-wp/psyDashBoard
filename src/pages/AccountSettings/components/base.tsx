@@ -14,6 +14,7 @@ import PhoneView from './PhoneView';
 import styles from './BaseView.less';
 import { updateUserInfo, updatePassWord, userPara, updateAvatar } from '@/services/userInfo';
 import { ConnectState } from '@/models/connect';
+import { getBase64 } from '@/utils/upload';
 
 const FormItem = Form.Item;
 const { Panel } = Collapse;
@@ -24,13 +25,6 @@ function beforeUpload(file: RcFile) {
     message.error('Image must smaller than 2MB!');
   }
   return isLt2M;
-}
-function getBase64(img: File | Blob | undefined, callback: Function) {
-  const reader = new FileReader();
-  reader.addEventListener('load', () => callback(reader.result));
-  if (img) {
-    reader.readAsDataURL(img);
-  }
 }
 
 const validatorPhone = (rule: any, value: string, callback: (message?: string) => void) => {

@@ -4,7 +4,7 @@ export default {
   'menu.bookTimeManager': '咨询时段管理',
   'menu.personalConfig': '个人设置',
   'menu.more-blocks': '更多区块',
-  'menu.空白页面': '空白页面',
+  'menu.pageManager': '页面管理',
   'menu.home': '首页',
   'menu.admin': '管理页',
   'menu.login': '登录',

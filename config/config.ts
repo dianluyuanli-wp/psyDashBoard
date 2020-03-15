@@ -4,6 +4,7 @@ import { webpackPlugin } from './plugin.config';
 import defaultSettings from './defaultSettings'; // https://umijs.org/config/
 
 import themePluginConfig from './themePluginConfig';
+
 const { pwa } = defaultSettings; // preview.pro.ant.design only do not use in your production ;
 // preview.pro.ant.design 专用环境变量，请不要在你的项目中使用它。
 
@@ -104,6 +105,7 @@ export default {
               name: 'currentApply',
               icon: 'smile',
               component: './Welcome',
+              authority: ['counselor'],
             },
             {
               path: '/admin',
@@ -117,6 +119,7 @@ export default {
               icon: 'crown',
               path: '/periodManager',
               component: './PeriodManager',
+              authority: ['counselor'],
             },
             {
               name: 'personalConfig',
@@ -125,11 +128,11 @@ export default {
               component: './AccountSettings',
             },
             {
-              name: '空白页面',
+              name: 'pageManager',
               icon: 'smile',
-              path: '/emptypage',
+              path: '/pageManager',
               authority: ['manager'],
-              component: './EmptyPage',
+              component: './PageManager',
             }, // {
             //   name: '个人中心',
             //   icon: 'smile',
