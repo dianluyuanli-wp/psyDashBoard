@@ -7,19 +7,15 @@ import {UploadFile, UploadChangeParam } from 'antd/lib/upload/interface';
 import styles from './index.less';
 
 const props = {
-  // name: 'file',
-  // action: '/upload.do',
-  // headers: {
-  //   authorization: 'authorization-text',
-  // },
   showUploadList: false,
-  onChange(info: UploadChangeParam<UploadFile<any>>) {
-    if (info.file.status !== 'uploading') {
-      console.log(info.file, info.fileList);
-    }
+  async onChange(info: UploadChangeParam<UploadFile<any>>) {
     if (info.file.status === 'done') {
-      upload(info);
-      message.success(`${info.file.name} 上传成功。`);
+      const ans = await upload(info);
+      if (ans === 'merge success') {
+        message.success(`${info.file.name} 上传成功。`);
+      } else {
+        message.error(`${info.file.name} 上传失败。`);
+      }
     } else if (info.file.status === 'error') {
       message.error(`${info.file.name} 上传失败。`);
     }
@@ -27,12 +23,6 @@ const props = {
 };
 
 export default () => {
-  // const [loading, setLoading] = useState<boolean>(true);
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     setLoading(false);
-  //   }, 3000);
-  // }, []);
   return (
     <PageHeaderWrapper content="这是一个新页面，从这里进行开发！" className={styles.main}>
       {/* <div style={{ paddingTop: 100, textAlign: 'center' }}>
