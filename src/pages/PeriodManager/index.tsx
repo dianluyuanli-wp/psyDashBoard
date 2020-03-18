@@ -63,7 +63,7 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
   const [total, setTol] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
 
-function listReducer(state: Array<Period>, action: PeriodListAction) {
+  function listReducer(state: Array<Period>, action: PeriodListAction) {
     const dUpdate = () => {
       // eslint-disable-next-line no-underscore-dangle
       const index = state.findIndex(item => item._id === action.id);
