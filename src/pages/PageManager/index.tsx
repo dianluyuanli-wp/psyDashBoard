@@ -2,9 +2,8 @@ import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import React, { useState, useEffect } from 'react';
 import { Upload, message, Button, Icon, Modal } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { upload } from '@/utils/upload';
+import { upload, getBase64 } from '@/utils/upload';
 import {UploadFile, UploadChangeParam } from 'antd/lib/upload/interface';
-//  import { Spin } from 'antd';
 import styles from './index.less';
 
 const props = {
@@ -25,16 +24,36 @@ const props = {
 
 const UploadImgWall = () => {
   const defaultFileList: Array<UploadFile<any>> = [];
-  const [fileList, setFileList] = useState(defaultFileList)
-  //  const fileList = [];
-  function handlePreview() {
+  const [fileList, setFileList] = useState(defaultFileList);
 
+  const [previewVisible, setPreviewStatus] = useState(false);
+  const [previewImg, setPreviewImg] = useState('');
+  async function handlePreview(file: UploadFile<any>) {
+    if (!file.url && !file.preview) {
+      if (!file.originFileObj) {
+        return;
+      }
+      Object.assign(file, {
+        preview: await getBase64(file.originFileObj)
+      })
+    }
+    setPreviewImg(file.url || file.preview || '');
+    setPreviewStatus(true);
   }
-  function handleChange(info: UploadChangeParam<UploadFile<any>>) {
-    const { fileList: newFileList } = info;
-    console.log(info.file);
-    setFileList(newFileList);
-    //  handleChange = ({ fileList }) => this.setState({ fileList });
+
+  function handleCancel() {
+    setPreviewStatus(false);
+  }
+  async function handleChange(info: UploadChangeParam<UploadFile<any>>) {
+    const { fileList: newFileList, file } = info;
+    const ans = await upload(info);
+    console.log(file);
+    if (ans === 'merge success') {
+      message.success(`${info.file.name} 上传成功。`);
+    } else {
+      message.error(`${info.file.name} 上传失败。`);
+    }
+    setFileList(newFileList.map(item => Object.assign(item, { status: 'done'})));
   }
   const uploadButton = (
     <div>
@@ -45,17 +64,19 @@ const UploadImgWall = () => {
   return (
     <div>
         <Upload
-          //  action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
           listType="picture-card"
           fileList={fileList}
           onPreview={handlePreview}
+          showUploadList={{showDownloadIcon: false}}
           onChange={handleChange}
+          //  不要跑默认的智障上传方法，每上传一次就搞个post请求，有的时候还会卡状态
+          customRequest={() => {}}
         >
-          {fileList.length >= 8 ? null : uploadButton}
+          {fileList.length >= 3 ? null : uploadButton}
         </Upload>
-        {/* <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
-          <img alt="example" style={{ width: '100%' }} src={previewImage} />
-        </Modal> */}
+        <Modal visible={previewVisible} footer={null} onCancel={handleCancel}>
+          <img alt="example" style={{ width: '100%' }} src={previewImg} />
+        </Modal>
     </div>
   )
 }

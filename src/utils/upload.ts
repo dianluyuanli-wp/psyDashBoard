@@ -25,13 +25,13 @@ export function getFileDate(file: File | Blob | undefined, callback: Function) {
     }
 }
 
-
-export function getBase64(img: File | Blob | undefined, callback: Function) {
+export function getBase64(file: File | Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.addEventListener('load', () => callback(reader.result));
-    if (img) {
-      reader.readAsDataURL(img);
-    }
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result?.toString());
+    reader.onerror = error => reject(error);
+  });
 }
 
 export async function uploadFile(params: FormData) {

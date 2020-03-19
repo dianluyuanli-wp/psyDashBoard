@@ -139,22 +139,23 @@ class BaseView extends Component<BaseViewProps> {
     </Fragment>
   );
 
-  handelUpload = (info: UploadChangeParam) => {
+  handelUpload = async (info: UploadChangeParam) => {
     if (info.file.status === 'uploading') {
       return;
     }
     if (info.file.status === 'done') {
-      getBase64(info.file.originFileObj, async (imageUrl: string | ArrayBuffer | null) => {
-          const res = await updateAvatar({ base64: imageUrl });
-          const imgUrl: string = res.file_list[0].download_url;
-          const updateObj = Object.assign(this.props.currentUser, { avatar: imgUrl });
-          this.props.dispatch({
-            type: 'user/saveCurrentUser',
-            payload: updateObj
-          });
-          await updateUserInfo(updateObj);
-        }
-      );
+      if (!info.file.originFileObj) {
+        return ;
+      }
+      const base64Url = await getBase64(info.file.originFileObj);
+      const res = await updateAvatar({ base64: base64Url });
+      const imgUrl: string = res.file_list[0].download_url;
+      const updateObj = Object.assign(this.props.currentUser, { avatar: imgUrl });
+      this.props.dispatch({
+        type: 'user/saveCurrentUser',
+        payload: updateObj
+      });
+      await updateUserInfo(updateObj);
     }
   }
 
