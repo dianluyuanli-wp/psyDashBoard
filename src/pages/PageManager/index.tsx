@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Upload, message, Button, Icon, Modal } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { upload, getBase64 } from '@/utils/upload';
+import { uploadPageInfo, getPageInfo } from '@/services/pageManager';
 import {UploadFile, UploadChangeParam } from 'antd/lib/upload/interface';
 import styles from './index.less';
 
@@ -24,10 +25,23 @@ const props = {
 
 const UploadImgWall = () => {
   const defaultFileList: Array<UploadFile<any>> = [];
+  //  文件列表
   const [fileList, setFileList] = useState(defaultFileList);
-
+  //  预览状态
   const [previewVisible, setPreviewStatus] = useState(false);
+  //  预览的图片
   const [previewImg, setPreviewImg] = useState('');
+
+  //  初始化文件列表
+  useEffect(() => {
+    async function pageInfo() {
+      const { data } = await getPageInfo();
+      const { imgList } = JSON.parse(data[0]);
+      setFileList(imgList);
+    };
+    pageInfo();
+  }, []);
+
   async function handlePreview(file: UploadFile<any>) {
     if (!file.url && !file.preview) {
       if (!file.originFileObj) {
@@ -47,13 +61,18 @@ const UploadImgWall = () => {
   async function handleChange(info: UploadChangeParam<UploadFile<any>>) {
     const { fileList: newFileList, file } = info;
     const ans = await upload(info);
-    console.log(file);
-    if (ans === 'merge success') {
+    if (ans.errmsg === 'ok') {
       message.success(`${info.file.name} 上传成功。`);
     } else {
       message.error(`${info.file.name} 上传失败。`);
+      return;
     }
-    setFileList(newFileList.map(item => Object.assign(item, { status: 'done'})));
+    setFileList(newFileList.map(item => {
+      if (item.name === file.name) {
+        return Object.assign(item, { status: 'done', url: ans.file_list[0].download_url });
+      }
+      return item;
+    }));
   }
   const uploadButton = (
     <div>
@@ -61,6 +80,15 @@ const UploadImgWall = () => {
       <div className="ant-upload-text">Upload</div>
     </div>
   );
+  async function updatePageInfo() {
+    const clearImgList = fileList.map(({ uid, size, name, type, url = '' }) => ({ uid, size, name, type, url }));
+    const res = await uploadPageInfo({
+      imgList: clearImgList
+    })
+    if (res.errmsg === 'ok') {
+      message.success('更新成功');
+    }
+  }
   return (
     <div>
         <Upload
@@ -77,6 +105,7 @@ const UploadImgWall = () => {
         <Modal visible={previewVisible} footer={null} onCancel={handleCancel}>
           <img alt="example" style={{ width: '100%' }} src={previewImg} />
         </Modal>
+        <Button type='primary' onClick={updatePageInfo}>页面信息上传</Button>
     </div>
   )
 }
