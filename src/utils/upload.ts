@@ -44,6 +44,9 @@ export async function fileMergeReq(name: string) {
 
 export async function upload(info: UploadChangeParam<UploadFile<any>>) {
     const fileList = createFileChunk(info.file.originFileObj);
+    if (!info.file.originFileObj) {
+        return '';
+    }
     const { name: filename } = info.file.originFileObj;
     const dataPkg = fileList.map(({ file }, index) => ({
         chunk: file,

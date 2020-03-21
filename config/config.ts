@@ -98,7 +98,7 @@ export default {
           routes: [
             {
               path: '/',
-              redirect: '/welcome',
+              redirect: '/accountsettings',
             },
             {
               path: '/welcome',
@@ -133,12 +133,7 @@ export default {
               path: '/pageManager',
               authority: ['manager'],
               component: './PageManager',
-            }, // {
-            //   name: '个人中心',
-            //   icon: 'smile',
-            //   path: '/accountcenter',
-            //   component: './AccountCenter',
-            // },
+            },
             {
               component: './404',
             },

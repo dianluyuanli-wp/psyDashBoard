@@ -10,6 +10,7 @@ interface singleImg {
 
 interface UpdatePara {
     imgList: Array<singleImg>;
+    text: string
 }
   
 //  更新页面状态
