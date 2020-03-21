@@ -99,6 +99,8 @@ const UploadImgWall = () => {
     })
     if (res.errmsg === 'ok') {
       message.success('更新成功');
+    } else {
+      message.error('更新失败')
     }
   }
 
