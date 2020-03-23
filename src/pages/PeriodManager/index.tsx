@@ -76,7 +76,7 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
         });
         return state;
       }
-      updatePeriod({ _id, status: target.status });
+      updatePeriod({ _id, status: action.action || 'off' });
       return [...state.slice(0, index), target, ...state.slice(index + 1)];
     };
     const actionMap = {

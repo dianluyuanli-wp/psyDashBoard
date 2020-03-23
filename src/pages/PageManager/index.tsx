@@ -36,7 +36,6 @@ const UploadImgWall = () => {
       const { data } = await getPageInfo();
       const { imgList, text } = JSON.parse(data[0]);
       setFileList(imgList);
-      if (!formRef.current) return;
       formRef.current.setFieldsValue({
         user: {
           pageContent: text
