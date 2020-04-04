@@ -90,10 +90,10 @@ const TableCom: React.FC<TableComProps> = props => {
         name: currentUser.name || '',
         token: accessToken,
       });
-      const xxx: Array<TableItem> = res.data
+      const parsedList: Array<TableItem> = res.data
         .map((item: string): { formData: object; userInfo: object } => JSON.parse(item))
         .map(({ formData, userInfo, status, _id }: CombienData, index: number) => {
-          const { nickName, gender, avatarUrl } = userInfo;
+          const { nickName, gender, avatarUrl } = userInfo || {};
           const { mobile, date = '111', time = '222', saySome = 'lalala' } = formData;
           return {
             name: nickName,
@@ -107,7 +107,7 @@ const TableCom: React.FC<TableComProps> = props => {
             _id,
           } as TableItem;
         });
-      setList({ type: 'init', index: 0, list: xxx });
+      setList({ type: 'init', index: 0, list: parsedList });
     };
     getInterviewerList();
   }, []);
