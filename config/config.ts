@@ -135,6 +135,13 @@ export default {
               component: './PageManager',
             },
             {
+              name: 'usersManager',
+              icon: 'smile',
+              path: '/usersManager',
+              authority: ['manager'],
+              component: './UsersManager',
+            },
+            {
               component: './404',
             },
           ],

@@ -40,6 +40,8 @@ export interface userPara {
   userInfo?: string;
   phone?: string;
   avatar?: string;
+  isFreezed?: boolean;
+  targetId?: string
 }
 
 export function updateUserInfo(params: userPara) {

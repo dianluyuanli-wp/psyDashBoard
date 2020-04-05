@@ -1,12 +1,13 @@
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import React, { useEffect, useState, useReducer } from 'react';
-import { Card, DatePicker, Form, Button, notification, Select } from 'antd';
+import { Card, DatePicker, Form, Button, Select } from 'antd';
 import styles from './index.less';
 import TableBasic from './TableBasic';
 import { CurrentUser } from '@/models/user';
 import moment from 'moment';
 //  import { throttle } from 'lodash';
 import { addPeriod, getPeriod, updatePeriod } from '@/services/period';
+import { notify } from '@/utils/tools';
 
 import { connect } from 'dva';
 import { ConnectState } from '@/models/connect';
@@ -71,9 +72,7 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
       const { _id = '', status } = target;
       target.status = action.action || 'off';
       if (target.count === 0 && status === 'on') {
-        notification.error({
-          message: `已被预约无法下架`,
-        });
+        notify('已被预约无法下架');
         return state;
       }
       updatePeriod({ _id, status: action.action || 'off' });
@@ -124,10 +123,7 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
   async function but() {
     const { _id, key, ...rest } = period;
     if (!rest.date || !rest.startTime || !rest.endTime) {
-      notification.error({
-        message: `数据未填写完整`,
-        description: '数据未填写完整',
-      });
+      notify('数据未填写完整');
       return;
     }
     setCurrentPage(1);
