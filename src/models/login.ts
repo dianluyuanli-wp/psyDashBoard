@@ -9,7 +9,7 @@ import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
 
 export interface StateType {
-  status?: 'ok' | 'error';
+  status?: 'ok' | 'error' | 'isFreezed';
   type?: string;
   name?: string;
   currentAuthority?: 'user' | 'guest' | 'admin';

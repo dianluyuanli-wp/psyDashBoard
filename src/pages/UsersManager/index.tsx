@@ -18,17 +18,6 @@ export const SINGLE_PAGE_SIZE = 10;
 export const COUNSELOR = 'counselor';
 export const MANAGER = 'manager';
 
-export interface Period {
-  date: string;
-  startTime: string;
-  endTime: string;
-  status: 'on' | 'off';
-  count: number;
-  _id: string;
-  //  为了渲染tab的时候不报错，必须要有这个可用
-  key: string;
-}
-
 const roleArray = [{ value: COUNSELOR, label: '咨询师' }, { value: MANAGER, label: '管理员'}];
 
 interface NewUserAction {

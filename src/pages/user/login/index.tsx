@@ -53,6 +53,9 @@ const Login: React.FC<LoginProps> = props => {
           {status === 'error' && loginType === 'account' && !submitting && (
             <LoginMessage content="账户或密码错误（admin/ant.design）" />
           )}
+          {status === 'isFreezed' && loginType === 'account' && !submitting && (
+            <LoginMessage content="账户被冻结" />
+          )}
 
           <UserName
             name="userName"

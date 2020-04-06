@@ -27,7 +27,7 @@ const columns = (action: React.Dispatch<UserListAction>) => [
     render: (item: User) => {
       const isOn = item.isFreezed;
       const text = isOn ? '冻结' : '正常';
-      return <span><ActionText style={{ color: isOn ? '' : 'red'}} text={text}/></span>
+      return <span><ActionText style={{ color: isOn ? 'red' : ''}} text={text}/></span>
     }
   },
   {
