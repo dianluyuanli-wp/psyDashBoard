@@ -3,12 +3,10 @@ import { Form } from '@ant-design/compatible';
 import '@ant-design/compatible/assets/index.css';
 import { Button, Input, Upload, message, Collapse } from 'antd';
 import { UploadChangeParam, RcFile } from 'antd/lib/upload/interface';
-import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
+import { FormattedMessage, formatMessage, Dispatch, connect } from 'umi';
 import React, { Component, Fragment } from 'react';
-import { Dispatch } from 'redux';
 
 import { FormComponentProps } from '@ant-design/compatible/es/form';
-import { connect } from 'dva';
 import { CurrentUser } from '@/models/user';
 import PhoneView from './PhoneView';
 import styles from './BaseView.less';

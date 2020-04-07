@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
-
-import { Dispatch } from 'redux';
-import { FormattedMessage } from 'umi-plugin-react/locale';
+import { FormattedMessage, Dispatch, connect } from 'umi';
 import { GridContent } from '@ant-design/pro-layout';
 import { Menu } from 'antd';
-import { connect } from 'dva';
 import BaseView from './components/base';
 import { CurrentUser } from '@/models/user';
 // import NotificationView from './components/notification';
@@ -15,7 +12,7 @@ import { ConnectState } from '@/models/connect';
 const { Item } = Menu;
 
 interface AccountSettingsProps {
-  dispatch: Dispatch<any>;
+  dispatch: Dispatch;
   currentUser: CurrentUser;
   accessToken: string;
 }

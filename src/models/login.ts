@@ -1,7 +1,6 @@
-import { Reducer } from 'redux';
-import { Effect } from 'dva';
+
+import { Reducer, Effect, history } from 'umi';
 import { stringify } from 'querystring';
-import router from 'umi/router';
 
 //  import { fakeAccountLogin } from '@/services/login';
 import { login } from '@/services/userInfo';
@@ -61,7 +60,7 @@ const Model: LoginModelType = {
             return;
           }
         }
-        router.replace(redirect || '/');
+        history.replace(redirect || '/');
       }
     },
 
@@ -69,7 +68,7 @@ const Model: LoginModelType = {
       const { redirect } = getPageQuery();
       // Note: There may be security issues, please note
       if (window.location.pathname !== '/user/login' && !redirect) {
-        router.replace({
+        history.replace({
           pathname: '/user/login',
           search: stringify({
             redirect: window.location.href,

@@ -9,11 +9,8 @@ import ProLayout, {
   Settings,
   DefaultFooter,
 } from '@ant-design/pro-layout';
-import { formatMessage } from 'umi-plugin-react/locale';
+import { formatMessage, Link, Dispatch, connect } from 'umi';
 import React, { useEffect } from 'react';
-import Link from 'umi/link';
-import { Dispatch } from 'redux';
-import { connect } from 'dva';
 //  import { GithubOutlined } from '@ant-design/icons';
 import { Result, Button } from 'antd';
 import Authorized from '@/utils/Authorized';
