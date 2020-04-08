@@ -3,7 +3,7 @@ import { Form } from '@ant-design/compatible';
 import '@ant-design/compatible/assets/index.css';
 import { Button, Input, Upload, message, Collapse } from 'antd';
 import { UploadChangeParam, RcFile } from 'antd/lib/upload/interface';
-import { FormattedMessage, formatMessage, Dispatch, connect } from 'umi';
+import { FormattedMessage, Dispatch, connect, injectIntl } from 'umi';
 import React, { Component, Fragment } from 'react';
 
 import { FormComponentProps } from '@ant-design/compatible/es/form';
@@ -38,9 +38,10 @@ const validatorPhone = (rule: any, value: string, callback: (message?: string) =
 
 interface BaseViewProps extends FormComponentProps {
   currentUser?: CurrentUser;
-  dispatch: Dispatch<any>;
+  dispatch: Dispatch;
   avatar?: string;
   accessToken: string;
+  intl: any
 }
 
 interface ComState {
@@ -96,7 +97,7 @@ class BaseView extends Component<BaseViewProps> {
 
   handlerSubmit = async (event: React.MouseEvent) => {
     event.preventDefault();
-    const { form } = this.props;
+    const { form, intl } = this.props;
     form.validateFields(err => {
       if (!err) {
         //  message.success(formatMessage({ id: 'accountsettings.basic.update.success' }));
@@ -110,7 +111,7 @@ class BaseView extends Component<BaseViewProps> {
     });
     const res = await updateUserInfo(updateObj as userPara);
     if (res.errmsg === 'ok') {
-      message.success(formatMessage({ id: 'accountsettings.basic.update.success' }));
+      message.success(intl.formatMessage({ id: 'accountsettings.basic.update.success' }));
     }
   };
 
@@ -180,52 +181,53 @@ class BaseView extends Component<BaseViewProps> {
   render() {
     const {
       form: { getFieldDecorator },
+      intl
     } = this.props;
     return (
       <div className={styles.baseView} ref={this.getViewDom}>
         <div className={styles.left}>
           <Form layout="vertical" hideRequiredMark>
-            <FormItem label={formatMessage({ id: 'accountsettings.basic.email' })}>
+            <FormItem label={intl.formatMessage({ id: 'accountsettings.basic.email' })}>
               {getFieldDecorator('email', {
                 rules: [
                   {
                     required: true,
-                    message: formatMessage({ id: 'accountsettings.basic.email-message' }, {}),
+                    message: intl.formatMessage({ id: 'accountsettings.basic.email-message' }, {}),
                   },
                 ],
               })(<Input />)}
             </FormItem>
-            <FormItem label={formatMessage({ id: 'accountsettings.basic.nickname' })}>
+            <FormItem label={intl.formatMessage({ id: 'accountsettings.basic.nickname' })}>
               {getFieldDecorator('showName', {
                 rules: [
                   {
                     required: true,
-                    message: formatMessage({ id: 'accountsettings.basic.nickname-message' }, {}),
+                    message: intl.formatMessage({ id: 'accountsettings.basic.nickname-message' }, {}),
                   },
                 ],
               })(<Input />)}
             </FormItem>
-            <FormItem label={formatMessage({ id: 'accountsettings.basic.profile' })}>
+            <FormItem label={intl.formatMessage({ id: 'accountsettings.basic.profile' })}>
               {getFieldDecorator('userInfo', {
                 rules: [
                   {
                     required: true,
-                    message: formatMessage({ id: 'accountsettings.basic.profile-message' }, {}),
+                    message: intl.formatMessage({ id: 'accountsettings.basic.profile-message' }, {}),
                   },
                 ],
               })(
                 <Input.TextArea
-                  placeholder={formatMessage({ id: 'accountsettings.basic.profile-placeholder' })}
+                  placeholder={intl.formatMessage({ id: 'accountsettings.basic.profile-placeholder' })}
                   rows={4}
                 />,
               )}
             </FormItem>
-            <FormItem label={formatMessage({ id: 'accountsettings.basic.phone' })}>
+            <FormItem label={intl.formatMessage({ id: 'accountsettings.basic.phone' })}>
               {getFieldDecorator('phone', {
                 rules: [
                   {
                     required: true,
-                    message: formatMessage({ id: 'accountsettings.basic.phone-message' }, {}),
+                    message: intl.formatMessage({ id: 'accountsettings.basic.phone-message' }, {}),
                   },
                   { validator: validatorPhone },
                 ],
@@ -262,5 +264,5 @@ export default connect(
     avatar: user.currentUser?.avatar,
     accessToken: login.accessToken,
   } as BaseViewProps),
-)(Form.create<BaseViewProps>()(BaseView));
+)(Form.create<BaseViewProps>()(injectIntl(BaseView)));
 

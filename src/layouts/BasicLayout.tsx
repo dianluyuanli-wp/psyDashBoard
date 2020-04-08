@@ -9,7 +9,7 @@ import ProLayout, {
   Settings,
   DefaultFooter,
 } from '@ant-design/pro-layout';
-import { formatMessage, Link, Dispatch, connect } from 'umi';
+import { Link, Dispatch, connect, useIntl } from 'umi';
 import React, { useEffect } from 'react';
 //  import { GithubOutlined } from '@ant-design/icons';
 import { Result, Button } from 'antd';
@@ -157,10 +157,11 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
   const authorized = getAuthorityFromRouter(props.route.routes, location.pathname || '/') || {
     authority: undefined,
   };
+  const intl = useIntl();
   return (
     <ProLayout
       logo={logo}
-      formatMessage={formatMessage}
+      formatMessage={intl.formatMessage}
       menuHeaderRender={(logoDom, titleDom) => (
         <Link to="/">
           {logoDom}
