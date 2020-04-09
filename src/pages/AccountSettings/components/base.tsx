@@ -1,12 +1,10 @@
 import { UploadOutlined } from '@ant-design/icons';
-import { Form } from '@ant-design/compatible';
-import '@ant-design/compatible/assets/index.css';
-import { Button, Input, Upload, message, Collapse } from 'antd';
+import { Button, Input, Upload, message, Collapse, Form } from 'antd';
+import { FormInstance } from 'antd/lib/form';
 import { UploadChangeParam, RcFile } from 'antd/lib/upload/interface';
 import { FormattedMessage, Dispatch, connect, injectIntl } from 'umi';
 import React, { Component, Fragment } from 'react';
 
-import { FormComponentProps } from '@ant-design/compatible/es/form';
 import { CurrentUser } from '@/models/user';
 import PhoneView from './PhoneView';
 import styles from './BaseView.less';
@@ -36,12 +34,12 @@ const validatorPhone = (rule: any, value: string, callback: (message?: string) =
   callback();
 };
 
-interface BaseViewProps extends FormComponentProps {
+interface BaseViewProps {
   currentUser?: CurrentUser;
   dispatch: Dispatch;
   avatar?: string;
   accessToken: string;
-  intl: any
+  intl: any,
 }
 
 interface ComState {
@@ -54,6 +52,8 @@ class BaseView extends Component<BaseViewProps> {
   view: HTMLDivElement | undefined = undefined;
 
   state: ComState;
+
+  formRef = React.createRef<FormInstance>();
 
   constructor(props: BaseViewProps) {
     super(props);
@@ -69,8 +69,9 @@ class BaseView extends Component<BaseViewProps> {
   }
 
   setBaseInfo = () => {
-    const { currentUser, form } = this.props;
-    if (currentUser) {
+    const { currentUser } = this.props;
+    const form = this.formRef.current;
+    if (currentUser && form) {
       Object.keys(form.getFieldsValue()).forEach(key => {
         const obj = {};
         obj[key] = currentUser[key] || null;
@@ -97,13 +98,10 @@ class BaseView extends Component<BaseViewProps> {
 
   handlerSubmit = async (event: React.MouseEvent) => {
     event.preventDefault();
-    const { form, intl } = this.props;
-    form.validateFields(err => {
-      if (!err) {
-        //  message.success(formatMessage({ id: 'accountsettings.basic.update.success' }));
-      }
-    });
+    const { intl } = this.props;
+    const form = this.formRef.current;
     const { dispatch } = this.props;
+    if (!form) return;
     const updateObj = form.getFieldsValue();
     dispatch({
       type: 'user/saveCurrentUser',
@@ -179,59 +177,53 @@ class BaseView extends Component<BaseViewProps> {
   }
 
   render() {
-    const {
-      form: { getFieldDecorator },
-      intl
-    } = this.props;
+    const { intl } = this.props;
     return (
       <div className={styles.baseView} ref={this.getViewDom}>
         <div className={styles.left}>
-          <Form layout="vertical" hideRequiredMark>
-            <FormItem label={intl.formatMessage({ id: 'accountsettings.basic.email' })}>
-              {getFieldDecorator('email', {
-                rules: [
-                  {
-                    required: true,
-                    message: intl.formatMessage({ id: 'accountsettings.basic.email-message' }, {}),
-                  },
-                ],
-              })(<Input />)}
+          <Form ref={this.formRef} layout="vertical" hideRequiredMark>
+            <FormItem name='email' label={intl.formatMessage({ id: 'accountsettings.basic.email' })}
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage({ id: 'accountsettings.basic.email-message' }, {}),
+              },
+            ]}>
+              <Input />
             </FormItem>
-            <FormItem label={intl.formatMessage({ id: 'accountsettings.basic.nickname' })}>
-              {getFieldDecorator('showName', {
-                rules: [
-                  {
-                    required: true,
-                    message: intl.formatMessage({ id: 'accountsettings.basic.nickname-message' }, {}),
-                  },
-                ],
-              })(<Input />)}
+            <FormItem name='showName' label={intl.formatMessage({ id: 'accountsettings.basic.nickname' })}
+              rules={[
+                {
+                  required: true,
+                  message: intl.formatMessage({ id: 'accountsettings.basic.nickname-message' }, {}),
+                },
+              ]}
+            >
+              <Input />
             </FormItem>
-            <FormItem label={intl.formatMessage({ id: 'accountsettings.basic.profile' })}>
-              {getFieldDecorator('userInfo', {
-                rules: [
-                  {
-                    required: true,
-                    message: intl.formatMessage({ id: 'accountsettings.basic.profile-message' }, {}),
-                  },
-                ],
-              })(
-                <Input.TextArea
-                  placeholder={intl.formatMessage({ id: 'accountsettings.basic.profile-placeholder' })}
-                  rows={4}
-                />,
-              )}
+            <FormItem name='userInfo' label={intl.formatMessage({ id: 'accountsettings.basic.profile' })}
+              rules={[
+                {
+                  required: true,
+                  message: intl.formatMessage({ id: 'accountsettings.basic.profile-message' }, {}),
+                },
+              ]}
+            >
+              <Input.TextArea
+                placeholder={intl.formatMessage({ id: 'accountsettings.basic.profile-placeholder' })}
+                rows={4}
+              />
             </FormItem>
-            <FormItem label={intl.formatMessage({ id: 'accountsettings.basic.phone' })}>
-              {getFieldDecorator('phone', {
-                rules: [
-                  {
-                    required: true,
-                    message: intl.formatMessage({ id: 'accountsettings.basic.phone-message' }, {}),
-                  },
-                  { validator: validatorPhone },
-                ],
-              })(<PhoneView />)}
+            <FormItem name='phone' label={intl.formatMessage({ id: 'accountsettings.basic.phone' })}
+              rules={[
+                {
+                  required: true,
+                  message: intl.formatMessage({ id: 'accountsettings.basic.phone-message' }, {}),
+                },
+                { validator: validatorPhone },
+              ]}
+            >
+              <PhoneView />
             </FormItem>
             <Collapse>
               <Panel header='修改密码' key='1'>
@@ -264,5 +256,5 @@ export default connect(
     avatar: user.currentUser?.avatar,
     accessToken: login.accessToken,
   } as BaseViewProps),
-)(Form.create<BaseViewProps>()(injectIntl(BaseView)));
+)(injectIntl(BaseView));
 
