@@ -6,7 +6,7 @@ import TableBasic from './TableBasic';
 import { CurrentUser } from '@/models/user';
 import moment from 'moment';
 //  import { throttle } from 'lodash';
-import { addPeriod, getPeriod, updatePeriod } from '@/services/period';
+import { addPeriod, updatePeriod, queryPeriodFreely } from '@/services/period';
 import { notify } from '@/utils/tools';
 
 import { connect } from 'umi';
@@ -18,6 +18,7 @@ const { Option } = Select;
 export const SINGLE_PAGE_SIZE = 10;
 
 export interface Period {
+  counselorId: string;
   date: string;
   startTime: string;
   endTime: string;
@@ -89,12 +90,11 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
   }
   const [periodList, setPList] = useReducer(listReducer, []);
 
+  //  初始化操作
   useEffect(() => {
     async function getList() {
-      const res = await getPeriod({
-        counselorId: currentUser.name || '',
-        offset: 0,
-        size: SINGLE_PAGE_SIZE,
+      const res = await queryPeriodFreely({
+        queryString: `db.collection("period").skip(0).limit(${SINGLE_PAGE_SIZE}).orderBy("date","desc").get()`,
       });
       const List = parseList(res);
       setPList({ type: 'init', payload: {} as Period, list: List });
@@ -107,6 +107,7 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
     return { ...state, [action.type]: action.value };
   }
   const [period, setPeriod] = useReducer(reducer, {
+    counselorId: '',
     date: '',
     startTime: '',
     endTime: '',
@@ -147,24 +148,6 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
     return date < moment();
   }
 
-  // //  开始时间从八点开始
-  // function disableStartOur() {
-  //   return new Array(8).fill('').map((item, index) => index);
-  // }
-  // //  结束小时置灰
-  // function disableEndHour() {
-  //   return new Array(24).fill('').map((item, index) => index)
-  //     .filter(item => item < parseInt(period.startTime.split(':')[0], 10));
-  // }
-  // //  结束分钟置灰
-  // function disableEndMinute(selectHour: number) {
-  //   return new Array(60).fill('').map((item, index) => index)
-  //     .filter(item => {
-  //       const [hour, minute] = period.startTime.split(':').map(sitem => parseInt(sitem, 10));
-  //       return selectHour > hour ? false : item <= minute;
-  //     })
-  // }
-
   return (
     <PageHeaderWrapper className={styles.main}>
       <Card title="添加咨询时段">
@@ -175,12 +158,6 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
               onChange={(_, string) => change('date', _, string)}
             />
           </FItem>
-          {/* <FItem label="开始时间">
-            <TimePicker format='HH:mm' hideDisabledOptions disabledHours={disableStartOur} onChange={(value, timeString) => change('startTime', value, timeString)} minuteStep={5} />
-          </FItem>
-          <FItem label="结束时间">
-            <TimePicker format='HH:mm' hideDisabledOptions disabledHours={disableEndHour} disabledMinutes={disableEndMinute} onChange={(value, timeString) => change('endTime', value, timeString)} minuteStep={5} />
-          </FItem> */}
           <FItem label="预约时段">
             <Select placeholder="请选择时段" onChange={(value: string) => changePeriodTime(value)}>
               {targetTimeArray.map(item => (

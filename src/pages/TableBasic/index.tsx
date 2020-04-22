@@ -1,9 +1,8 @@
 import React, { useEffect, useReducer } from 'react';
 import styles from './index.less';
-import { connect } from 'dva';
+import { connect, Dispatch } from 'umi';
 import { CurrentUser } from '@/models/user';
 import { ConnectState } from '@/models/connect';
-import { Dispatch } from 'redux';
 import { getList, updateStatus } from '@/services/interviewee';
 import { Table, Divider, Avatar, Tag } from 'antd';
 import { ActionText } from '@/components/smallCom/ActionText';
@@ -61,8 +60,8 @@ interface CombienData {
 const genderMap = {
   0: '未知',
   1: '男',
-  2: '女'
-}
+  2: '女',
+};
 
 const TableCom: React.FC<TableComProps> = props => {
   const { currentUser, accessToken } = props;
@@ -77,7 +76,7 @@ const TableCom: React.FC<TableComProps> = props => {
       },
     };
     return actionMap[action.type]();
-  };
+  }
   const [tableData, setList] = useReducer(listReducer, []);
   const changeStatus = (index: number, act: 'accept' | 'deny') => {
     // eslint-disable-next-line no-underscore-dangle
@@ -99,7 +98,7 @@ const TableCom: React.FC<TableComProps> = props => {
             name: nickName,
             gender,
             tel: mobile,
-            time: `${date  } ${  time}`,
+            time: `${date} ${time}`,
             avatar: avatarUrl,
             saySome,
             status,
@@ -155,12 +154,13 @@ const TableCom: React.FC<TableComProps> = props => {
     {
       title: '操作',
       key: 'action',
-      render: (text: TableItem) => 
-          <span>
-            <ActionText text='接受预约' onClick={() => changeStatus(text.key, 'accept')} />
-            <Divider type="vertical" />
-            <ActionText text='驳回' onClick={() => changeStatus(text.key, 'deny')} />
-          </span>
+      render: (text: TableItem) => (
+        <span>
+          <ActionText text="接受预约" onClick={() => changeStatus(text.key, 'accept')} />
+          <Divider type="vertical" />
+          <ActionText text="驳回" onClick={() => changeStatus(text.key, 'deny')} />
+        </span>
+      ),
     },
   ];
   return (

@@ -22,11 +22,18 @@ export async function addPeriod(params: PeriodParams): Promise<any> {
 }
 
 interface UpdatePeriodPara {
-  status?: 'on' | 'off',
-  count?: number,
-  _id: string
+  status?: 'on' | 'off';
+  count?: number;
+  _id: string;
 }
 
 export async function updatePeriod(params: UpdatePeriodPara) {
   return reqPost('updatePeriod', params);
+}
+
+interface PeriodQueryFreely {
+  queryString: string;
+}
+export async function queryPeriodFreely(params: PeriodQueryFreely): Promise<any> {
+  return reqPost('queryPeriodFreely', params);
 }

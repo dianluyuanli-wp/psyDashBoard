@@ -1,7 +1,7 @@
 // import { QuestionCircleOutlined } from '@ant-design/icons';
 // import { Tooltip } from 'antd';
 import React from 'react';
-import { connect } from 'dva';
+import { connect } from 'umi';
 import { ConnectProps, ConnectState } from '@/models/connect';
 //  import NoticeIconView from './NoticeIconView';
 import Avatar from './AvatarDropdown';

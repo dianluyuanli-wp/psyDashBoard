@@ -90,6 +90,13 @@ export default defineConfig({
               component: './UsersManager',
             },
             {
+              name: 'queryPeriod',
+              icon: 'smile',
+              path: '/queryPeriod',
+              authority: ['manager'],
+              component: './QueryPeriod',
+            },
+            {
               component: './404',
             },
           ],
@@ -117,12 +124,12 @@ export default defineConfig({
   },
   cssLoader: {
     modules: {
-      getLocalIdent : (
+      getLocalIdent: (
         context: {
           resourcePath: string;
         },
         _: string,
-        localName: string
+        localName: string,
       ) => {
         if (
           context.resourcePath.includes('node_modules') ||
@@ -145,7 +152,7 @@ export default defineConfig({
 
         return localName;
       },
-    }
+    },
   },
   manifest: {
     basePath: '/',

@@ -5,7 +5,7 @@ import styles from './index.less';
 import TableBasic from './TableBasic';
 import { updateUserInfo } from '@/services/userInfo';
 
-import { connect } from 'dva';
+import { connect } from 'umi';
 import { ConnectState } from '@/models/connect';
 import { CommonComPara } from '@/models/global';
 import { queryAllUsers, User, parseList, NewUser, addUser } from '@/services/user';
@@ -18,7 +18,10 @@ export const SINGLE_PAGE_SIZE = 10;
 export const COUNSELOR = 'counselor';
 export const MANAGER = 'manager';
 
-const roleArray = [{ value: COUNSELOR, label: '咨询师' }, { value: MANAGER, label: '管理员'}];
+const roleArray = [
+  { value: COUNSELOR, label: '咨询师' },
+  { value: MANAGER, label: '管理员' },
+];
 
 interface NewUserAction {
   type: 'createName' | 'identity';
@@ -55,10 +58,10 @@ const UsersManager: React.FC<CommonComPara> = props => {
     const actionMap = {
       add: () => (action?.payload ? [action.payload] : []).concat([...state]),
       init: () => action?.list || [],
-      update: dUpdate
+      update: dUpdate,
     };
     return actionMap[action.type]();
-  };
+  }
 
   //  初始化列表
   useEffect(() => {
@@ -67,19 +70,19 @@ const UsersManager: React.FC<CommonComPara> = props => {
       const List = parseList(res);
       setUserList({ type: 'init', payload: {} as User, list: List });
       setTol(res.pager.Total);
-    };
+    }
     getList();
   }, []);
 
   //  设置添加的用户
   const [newUser, setNewUser] = useReducer(changeNewUser, {
     createName: '',
-    identity: COUNSELOR
+    identity: COUNSELOR,
   });
 
   function changeNewUser(state: NewUser, action: NewUserAction) {
     return { ...state, [action.type]: action.value };
-  };
+  }
 
   function changeRole(value: 'counselor' | 'manager') {
     setNewUser({ type: 'identity', value });
@@ -100,12 +103,19 @@ const UsersManager: React.FC<CommonComPara> = props => {
     // eslint-disable-next-line @typescript-eslint/camelcase
     const { errcode, id_list } = await addUser(newUser);
     if (errcode === 0) {
-      const newParseUser = { _id: id_list[0], showName: '', avatar: '', userInfo: '', name: newUser.createName, identity: newUser.identity}
+      const newParseUser = {
+        _id: id_list[0],
+        showName: '',
+        avatar: '',
+        userInfo: '',
+        name: newUser.createName,
+        identity: newUser.identity,
+      };
       setUserList({ type: 'add', list: [], payload: newParseUser });
-    } else if(errcode === 1) {
+    } else if (errcode === 1) {
       notify(`用户id重复`);
     }
-  };
+  }
 
   return (
     <PageHeaderWrapper className={styles.main}>
@@ -115,19 +125,31 @@ const UsersManager: React.FC<CommonComPara> = props => {
             <Input onChange={changeInput} />
           </FItem>
           <FItem label="用户角色">
-            <Select placeholder="请选择角色" defaultValue={COUNSELOR} onChange={(value: 'counselor' | 'manager') => changeRole(value)}>
-              {roleArray.map(item => <Option key={item.value} value={item.value}>{item.label}</Option>)}
+            <Select
+              placeholder="请选择角色"
+              defaultValue={COUNSELOR}
+              onChange={(value: 'counselor' | 'manager') => changeRole(value)}
+            >
+              {roleArray.map(item => (
+                <Option key={item.value} value={item.value}>
+                  {item.label}
+                </Option>
+              ))}
             </Select>
           </FItem>
-          <Button className={styles.newRecord} onClick={createUser} type='primary'>
+          <Button className={styles.newRecord} onClick={createUser} type="primary">
             新建
           </Button>
         </Form>
       </Card>
-      <TableBasic list={userList}
+      <TableBasic
+        list={userList}
         currentPage={currentPage}
-        action={setUserList} setCurrentPage={setCurrentPage}
-        total={total} user={currentUser.name || ''}/>
+        action={setUserList}
+        setCurrentPage={setCurrentPage}
+        total={total}
+        user={currentUser.name || ''}
+      />
     </PageHeaderWrapper>
   );
 };
