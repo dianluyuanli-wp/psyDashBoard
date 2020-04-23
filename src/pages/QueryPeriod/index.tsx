@@ -1,10 +1,11 @@
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import React, { useEffect, useState, useReducer } from 'react';
-import { Card, DatePicker, Form, Button, Select } from 'antd';
+import { Card, DatePicker, Form, Button, Select, Switch } from 'antd';
 import styles from './index.less';
 import TableBasic from './TableBasic';
 import { CurrentUser } from '@/models/user';
 import moment from 'moment';
+import { RangeValue } from 'rc-picker/lib/interface';
 //  import { throttle } from 'lodash';
 import { addPeriod, updatePeriod, queryPeriodFreely } from '@/services/period';
 import { notify } from '@/utils/tools';
@@ -13,7 +14,7 @@ import { connect } from 'umi';
 import { ConnectState } from '@/models/connect';
 
 const FItem = Form.Item;
-const { Option } = Select;
+const { RangePicker } = DatePicker;
 
 export const SINGLE_PAGE_SIZE = 10;
 
@@ -29,8 +30,6 @@ export interface Period {
   key: string;
 }
 
-const targetTimeArray = [8, 9, 10, 11, 14, 15, 16, 17];
-
 interface PeriodAction {
   type: 'date' | 'startTime' | 'endTime' | 'periodId' | 'key';
   value: string;
@@ -42,6 +41,19 @@ export interface PeriodListAction {
   action?: 'on' | 'off';
   payload?: Period;
   list?: Array<Period>;
+}
+
+export interface QueryObj {
+  switchOn: boolean;
+  period: [moment.Moment, moment.Moment];
+  counselorId: string;
+}
+
+export interface QueryAction {
+  type: 'toggle' | 'period' | 'name';
+  coundelorId?: string;
+  switchOn?: boolean;
+  period?: [moment.Moment, moment.Moment];
 }
 
 interface PeriodManagerProps {
@@ -67,6 +79,7 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
   const [total, setTol] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
 
+  //  列表相关reducer
   function listReducer(state: Array<Period>, action: PeriodListAction) {
     const dUpdate = () => {
       // eslint-disable-next-line no-underscore-dangle
@@ -89,6 +102,19 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
     return actionMap[action.type]();
   }
   const [periodList, setPList] = useReducer(listReducer, []);
+
+  //  筛选条件相关reducer
+  function queryReducer(state: QueryObj, action: QueryAction): QueryObj {
+    const actionMap = {
+      toggle: () => ({ ...state, switchOn: action.switchOn }),
+    };
+    return actionMap[action.type]();
+  }
+  const [queryObj, setQuery] = useReducer(queryReducer, {
+    switchOn: true,
+    period: [moment(), moment().add(7, 'days')],
+    counselorId: '',
+  } as QueryObj);
 
   //  初始化操作
   useEffect(() => {
@@ -117,16 +143,6 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
     key: '',
   });
 
-  function change(type: 'date' | 'startTime' | 'endTime', _: moment.Moment | null, string: string) {
-    setPeriod({ type, value: string });
-  }
-
-  function changePeriodTime(value: string) {
-    const temp = `0${value}`.slice(-2);
-    setPeriod({ type: 'startTime', value: `${temp}:00` });
-    setPeriod({ type: 'endTime', value: `${temp}:50` });
-  }
-
   async function but() {
     const { _id, key, ...rest } = period;
     if (!rest.date || !rest.startTime || !rest.endTime) {
@@ -143,30 +159,35 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
       setPList({ type: 'add', list: [], payload: period });
     }
   }
-  //  不能选以前的日期
-  function disableDate(date: moment.Moment) {
-    return date < moment();
+
+  function queryPeriod(momentArray: RangeValue<moment.Moment>, dateString: [string, string]) {
+    // setQuery({
+    //   type: 'period',
+    //   period: momentArray
+    // })
+    console.log(momentArray, dateString);
+  }
+
+  function changeSwitch(checked: boolean) {
+    setQuery({
+      type: 'toggle',
+      switchOn: checked,
+    });
+    console.log(queryObj);
   }
 
   return (
     <PageHeaderWrapper className={styles.main}>
-      <Card title="添加咨询时段">
+      <Card title="查询条件">
         <Form className={styles.range}>
-          <FItem label="咨询日期">
-            <DatePicker
-              disabledDate={disableDate}
-              onChange={(_, string) => change('date', _, string)}
-            />
+          <FItem label="日期过滤">
+            <Switch defaultChecked={queryObj.switchOn} onChange={changeSwitch} />
           </FItem>
-          <FItem label="预约时段">
-            <Select placeholder="请选择时段" onChange={(value: string) => changePeriodTime(value)}>
-              {targetTimeArray.map(item => (
-                <Option key={item} value={item}>
-                  {`0${item}`.slice(-2)}:00 - {`0${item}`.slice(-2)}:50
-                </Option>
-              ))}
-            </Select>
-          </FItem>
+          {queryObj.switchOn && (
+            <FItem label="咨询日期">
+              <RangePicker onChange={queryPeriod} size="small" defaultValue={queryObj.period} />
+            </FItem>
+          )}
           <Button className={styles.newRecord} onClick={but} type="primary">
             新建
           </Button>
