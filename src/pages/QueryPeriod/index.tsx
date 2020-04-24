@@ -1,13 +1,13 @@
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import React, { useEffect, useState, useReducer } from 'react';
-import { Card, DatePicker, Form, Button, Select, Switch } from 'antd';
+import { Card, DatePicker, Form, Button, Switch } from 'antd';
 import styles from './index.less';
 import TableBasic from './TableBasic';
 import { CurrentUser } from '@/models/user';
 import moment from 'moment';
 import { RangeValue } from 'rc-picker/lib/interface';
 //  import { throttle } from 'lodash';
-import { addPeriod, updatePeriod, queryPeriodFreely } from '@/services/period';
+import { updatePeriod, queryPeriodFreely } from '@/services/period';
 import { notify } from '@/utils/tools';
 
 import { connect } from 'umi';
@@ -30,11 +30,6 @@ export interface Period {
   key: string;
 }
 
-interface PeriodAction {
-  type: 'date' | 'startTime' | 'endTime' | 'periodId' | 'key';
-  value: string;
-}
-
 export interface PeriodListAction {
   type: 'add' | 'init' | 'update';
   id?: string;
@@ -45,15 +40,14 @@ export interface PeriodListAction {
 
 export interface QueryObj {
   switchOn: boolean;
-  period: [moment.Moment, moment.Moment];
+  period: RangeValue<moment.Moment>;
   counselorId: string;
 }
 
 export interface QueryAction {
-  type: 'toggle' | 'period' | 'name';
   coundelorId?: string;
   switchOn?: boolean;
-  period?: [moment.Moment, moment.Moment];
+  period?: RangeValue<moment.Moment>
 }
 
 interface PeriodManagerProps {
@@ -105,10 +99,7 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
 
   //  筛选条件相关reducer
   function queryReducer(state: QueryObj, action: QueryAction): QueryObj {
-    const actionMap = {
-      toggle: () => ({ ...state, switchOn: action.switchOn }),
-    };
-    return actionMap[action.type]();
+    return { ...state, ...action};
   }
   const [queryObj, setQuery] = useReducer(queryReducer, {
     switchOn: true,
@@ -129,51 +120,29 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
     getList();
   }, []);
 
-  function reducer(state: Period, action: PeriodAction) {
-    return { ...state, [action.type]: action.value };
-  }
-  const [period, setPeriod] = useReducer(reducer, {
-    counselorId: '',
-    date: '',
-    startTime: '',
-    endTime: '',
-    status: 'off',
-    count: 1,
-    _id: '',
-    key: '',
-  });
-
   async function but() {
-    const { _id, key, ...rest } = period;
-    if (!rest.date || !rest.startTime || !rest.endTime) {
-      notify('数据未填写完整');
-      return;
-    }
-    setCurrentPage(1);
-    setTol(total + 1);
-    // eslint-disable-next-line @typescript-eslint/camelcase
-    const { errcode, id_list } = await addPeriod({ ...rest, counselorId: currentUser.name || '' });
-    if (errcode === 0) {
-      setPeriod({ type: 'key', value: id_list[0] });
-      setPeriod({ type: 'periodId', value: id_list[0] });
-      setPList({ type: 'add', list: [], payload: period });
-    }
+    console.log(queryObj)
+  }
+
+  function getQueryString(pageNum: number) {
+    const queryJsonString = JSON.stringify(Object.assign({}, 
+      queryObj.switchOn ? {} : {},
+      queryObj.counselorId ? { counselorId: queryObj.counselorId } : {}
+    ));
+    return `db.collection("period").where(${}).skip(${(pageNum - 1) * SINGLE_PAGE_SIZE}).limit(${SINGLE_PAGE_SIZE}).orderBy("date","desc").get()`
   }
 
   function queryPeriod(momentArray: RangeValue<moment.Moment>, dateString: [string, string]) {
-    // setQuery({
-    //   type: 'period',
-    //   period: momentArray
-    // })
+    setQuery({
+      period: momentArray
+    })
     console.log(momentArray, dateString);
   }
 
   function changeSwitch(checked: boolean) {
     setQuery({
-      type: 'toggle',
       switchOn: checked,
     });
-    console.log(queryObj);
   }
 
   return (
