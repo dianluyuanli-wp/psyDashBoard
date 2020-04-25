@@ -91,10 +91,17 @@ export default defineConfig({
             },
             {
               name: 'queryPeriod',
-              icon: 'smile',
+              icon: 'crown',
               path: '/queryPeriod',
               authority: ['manager'],
               component: './QueryPeriod',
+            },
+            {
+              name: 'queryInterviewer',
+              icon: 'crown',
+              path: '/queryInterviewer',
+              authority: ['manager'],
+              component: './QueryInterviewer',
             },
             {
               component: './404',

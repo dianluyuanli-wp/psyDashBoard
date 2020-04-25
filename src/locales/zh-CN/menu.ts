@@ -7,6 +7,7 @@ export default {
   'menu.pageManager': '页面管理',
   'menu.usersManager': '账号管理',
   'menu.queryPeriod': '咨询时段查询',
+  'menu.queryInterviewer': '预约查询',
   'menu.home': '首页',
   'menu.admin': '管理页',
   'menu.login': '登录',

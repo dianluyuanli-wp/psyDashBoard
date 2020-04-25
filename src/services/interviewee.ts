@@ -16,9 +16,19 @@ interface QueryCommonnPara {
 
 interface GetListProp extends QueryCommonnPara {
   name: string;
+  offset: number;
+  size: number;
 }
 
 //  获取自己的预约列表
 export async function getList(params: GetListProp): Promise<any> {
   return reqPost('getInterviewerList', params);
+}
+
+interface InterviewerQueryFreely {
+  queryString: string;
+}
+//  自有查询预约列表
+export async function queryInterviewerFreely(params: InterviewerQueryFreely): Promise<any> {
+  return reqPost('queryInterviewerFreely', params);
 }

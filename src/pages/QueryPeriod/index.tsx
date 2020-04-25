@@ -1,14 +1,15 @@
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import React, { useEffect, useState, useReducer } from 'react';
-import { Card, DatePicker, Form, Button, Switch } from 'antd';
+import React, { useEffect, useReducer } from 'react';
+import { Card, DatePicker, Form, Button, Switch, Input } from 'antd';
 import styles from './index.less';
 import TableBasic from './TableBasic';
-import { CurrentUser } from '@/models/user';
 import moment from 'moment';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { RangeValue } from 'rc-picker/lib/interface';
-//  import { throttle } from 'lodash';
 import { updatePeriod, queryPeriodFreely } from '@/services/period';
 import { notify } from '@/utils/tools';
+import { usePageManager } from '@/utils/commonHooks';
+import { Period, PeriodManagerProps, PeriodListAction } from '../PeriodManager/types';
 
 import { connect } from 'umi';
 import { ConnectState } from '@/models/connect';
@@ -17,27 +18,6 @@ const FItem = Form.Item;
 const { RangePicker } = DatePicker;
 
 export const SINGLE_PAGE_SIZE = 10;
-
-export interface Period {
-  counselorId: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  status: 'on' | 'off';
-  count: number;
-  _id: string;
-  //  为了渲染tab的时候不报错，必须要有这个可用
-  key: string;
-}
-
-export interface PeriodListAction {
-  type: 'add' | 'init' | 'update';
-  id?: string;
-  action?: 'on' | 'off';
-  payload?: Period;
-  list?: Array<Period>;
-}
-
 export interface QueryObj {
   switchOn: boolean;
   period: RangeValue<moment.Moment>;
@@ -45,14 +25,9 @@ export interface QueryObj {
 }
 
 export interface QueryAction {
-  coundelorId?: string;
+  counselorId?: string;
   switchOn?: boolean;
-  period?: RangeValue<moment.Moment>
-}
-
-interface PeriodManagerProps {
-  currentUser: CurrentUser;
-  accessToken: string;
+  period?: RangeValue<moment.Moment>;
 }
 
 export function parseList(res: any): Array<Period> {
@@ -70,8 +45,7 @@ export function parseList(res: any): Array<Period> {
 
 const PeriodManager: React.FC<PeriodManagerProps> = props => {
   const { currentUser } = props;
-  const [total, setTol] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [pageObj, setPage] = usePageManager();
 
   //  列表相关reducer
   function listReducer(state: Array<Period>, action: PeriodListAction) {
@@ -99,7 +73,7 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
 
   //  筛选条件相关reducer
   function queryReducer(state: QueryObj, action: QueryAction): QueryObj {
-    return { ...state, ...action};
+    return { ...state, ...action };
   }
   const [queryObj, setQuery] = useReducer(queryReducer, {
     switchOn: true,
@@ -107,41 +81,54 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
     counselorId: '',
   } as QueryObj);
 
+  async function buttonClick() {
+    const res = await queryPeriodFreely({
+      queryString: getQueryString(1),
+    });
+    const List = parseList(res);
+    setPList({ type: 'init', payload: {} as Period, list: List });
+    setPage({ total: res.pager.Total });
+  }
+
   //  初始化操作
   useEffect(() => {
-    async function getList() {
-      const res = await queryPeriodFreely({
-        queryString: `db.collection("period").skip(0).limit(${SINGLE_PAGE_SIZE}).orderBy("date","desc").get()`,
-      });
-      const List = parseList(res);
-      setPList({ type: 'init', payload: {} as Period, list: List });
-      setTol(res.pager.Total);
-    }
-    getList();
+    buttonClick();
   }, []);
 
-  async function but() {
-    console.log(queryObj)
-  }
-
   function getQueryString(pageNum: number) {
-    const queryJsonString = JSON.stringify(Object.assign({}, 
-      queryObj.switchOn ? {} : {},
-      queryObj.counselorId ? { counselorId: queryObj.counselorId } : {}
-    ));
-    return `db.collection("period").where(${}).skip(${(pageNum - 1) * SINGLE_PAGE_SIZE}).limit(${SINGLE_PAGE_SIZE}).orderBy("date","desc").get()`
+    const queryJsonString = JSON.stringify(
+      Object.assign(
+        {},
+        queryObj.switchOn
+          ? {
+              date: `_.gt('${queryObj.period?.[0]?.format(
+                'YYYY-MM-DD',
+              )}').and(_.lt('${queryObj.period?.[1]?.format('YYYY-MM-DD')}'))`,
+            }
+          : {},
+        queryObj.counselorId ? { counselorId: `'${queryObj.counselorId}'` } : {},
+      ),
+    ).replace(/"/g, '');
+    //  这里要替换下，否则后台会理解为字符串而不是查询条件
+    return `db.collection('period').where(${queryJsonString}).skip(${(pageNum - 1) *
+      SINGLE_PAGE_SIZE}).limit(${SINGLE_PAGE_SIZE}).orderBy('date','desc').get()`;
   }
 
-  function queryPeriod(momentArray: RangeValue<moment.Moment>, dateString: [string, string]) {
+  function queryPeriod(momentArray: RangeValue<moment.Moment>) {
     setQuery({
-      period: momentArray
-    })
-    console.log(momentArray, dateString);
+      period: momentArray,
+    });
   }
 
   function changeSwitch(checked: boolean) {
     setQuery({
       switchOn: checked,
+    });
+  }
+
+  function changeInput(event: React.ChangeEvent<HTMLInputElement>) {
+    setQuery({
+      counselorId: event.target.value,
     });
   }
 
@@ -157,17 +144,21 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
               <RangePicker onChange={queryPeriod} size="small" defaultValue={queryObj.period} />
             </FItem>
           )}
-          <Button className={styles.newRecord} onClick={but} type="primary">
-            新建
+          <FItem label="咨询师id">
+            <Input size="small" defaultChecked={queryObj.switchOn} onChange={changeInput} />
+          </FItem>
+          <Button className={styles.newRecord} onClick={buttonClick} type="primary">
+            搜索
           </Button>
         </Form>
       </Card>
       <TableBasic
         list={periodList}
-        currentPage={currentPage}
+        currentPage={pageObj.current}
+        getQueryString={getQueryString}
         action={setPList}
-        setCurrentPage={setCurrentPage}
-        total={total}
+        setCurrentPage={setPage}
+        total={pageObj.total}
         user={currentUser.name || ''}
       />
     </PageHeaderWrapper>

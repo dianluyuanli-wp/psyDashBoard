@@ -1,13 +1,14 @@
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import React, { useEffect, useState, useReducer } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import { Card, DatePicker, Form, Button, Select } from 'antd';
 import styles from './index.less';
 import TableBasic from './TableBasic';
-import { CurrentUser } from '@/models/user';
 import moment from 'moment';
 //  import { throttle } from 'lodash';
 import { addPeriod, getPeriod, updatePeriod } from '@/services/period';
 import { notify } from '@/utils/tools';
+import { usePageManager } from '@/utils/commonHooks';
+import { Period, PeriodManagerProps, PeriodListAction, PeriodAction } from './types';
 
 import { connect } from 'umi';
 import { ConnectState } from '@/models/connect';
@@ -17,36 +18,7 @@ const { Option } = Select;
 
 export const SINGLE_PAGE_SIZE = 10;
 
-export interface Period {
-  date: string;
-  startTime: string;
-  endTime: string;
-  status: 'on' | 'off';
-  count: number;
-  _id: string;
-  //  为了渲染tab的时候不报错，必须要有这个可用
-  key: string;
-}
-
 const targetTimeArray = [8, 9, 10, 11, 14, 15, 16, 17];
-
-interface PeriodAction {
-  type: 'date' | 'startTime' | 'endTime' | 'periodId' | 'key';
-  value: string;
-}
-
-export interface PeriodListAction {
-  type: 'add' | 'init' | 'update';
-  id?: string;
-  action?: 'on' | 'off';
-  payload?: Period;
-  list?: Array<Period>;
-}
-
-interface PeriodManagerProps {
-  currentUser: CurrentUser;
-  accessToken: string;
-}
 
 export function parseList(res: any): Array<Period> {
   return res.data
@@ -63,8 +35,7 @@ export function parseList(res: any): Array<Period> {
 
 const PeriodManager: React.FC<PeriodManagerProps> = props => {
   const { currentUser } = props;
-  const [total, setTol] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [pageObj, setPage] = usePageManager();
 
   function listReducer(state: Array<Period>, action: PeriodListAction) {
     const dUpdate = () => {
@@ -98,7 +69,7 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
       });
       const List = parseList(res);
       setPList({ type: 'init', payload: {} as Period, list: List });
-      setTol(res.pager.Total);
+      setPage({ total: res.pager.Total });
     }
     getList();
   }, []);
@@ -132,8 +103,7 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
       notify('数据未填写完整');
       return;
     }
-    setCurrentPage(1);
-    setTol(total + 1);
+    setPage({ current: 1, total: pageObj.total + 1 });
     // eslint-disable-next-line @typescript-eslint/camelcase
     const { errcode, id_list } = await addPeriod({ ...rest, counselorId: currentUser.name || '' });
     if (errcode === 0) {
@@ -197,10 +167,10 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
       </Card>
       <TableBasic
         list={periodList}
-        currentPage={currentPage}
+        currentPage={pageObj.current}
         action={setPList}
-        setCurrentPage={setCurrentPage}
-        total={total}
+        setCurrentPage={setPage}
+        total={pageObj.total}
         user={currentUser.name || ''}
       />
     </PageHeaderWrapper>
