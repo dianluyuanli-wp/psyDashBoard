@@ -40,11 +40,9 @@ const TableCom: React.FC<TableComProps> = () => {
         {},
         queryObj.switchOn
           ? {
-              'formData.date': `_.gt('${queryObj.period?.[0]?.format(
-                'YYYY-MM-DD',
+              'formData.date': `_.gt('${queryObj.period?.[0]?.format('YYYY-MM-DD',
               )}').and(_.lt('${queryObj.period?.[1]?.format('YYYY-MM-DD')}'))`,
-            }
-          : {},
+            } : {},
         queryObj.counselorId ? { counselorId: `'${queryObj.counselorId}'` } : {},
       ),
     )
