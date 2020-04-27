@@ -5,7 +5,9 @@ import { PlusOutlined } from '@ant-design/icons';
 import { upload, getBase64 } from '@/utils/upload';
 import { uploadPageInfo, getPageInfo } from '@/services/pageManager';
 import {UploadFile, UploadChangeParam } from 'antd/lib/upload/interface';
+import BraftEditor, { EditorState } from 'braft-editor';
 import styles from './index.less';
+import 'braft-editor/dist/index.css'
 
 const { TextArea } = Input;
 const { Item: FormItem } = Form;
@@ -27,6 +29,8 @@ const UploadImgWall = () => {
   const [previewVisible, setPreviewStatus] = useState(false);
   //  预览的图片
   const [previewImg, setPreviewImg] = useState('');
+  //  富文本编辑器内容
+  const [editorState, setEditorState] = useState(BraftEditor.createEditorState(null));
 
   const formRef = useRef(null);
 
@@ -41,6 +45,7 @@ const UploadImgWall = () => {
           pageContent: text
         }
       })
+      setEditorState(BraftEditor.createEditorState(text));
     };
     pageInfo();
   }, []);
@@ -94,13 +99,18 @@ const UploadImgWall = () => {
     const clearImgList = fileList.map(({ uid, size, name, type, url = '' }) => ({ uid, size, name, type, url }));
     const res = await uploadPageInfo({
       imgList: clearImgList,
-      text: pageInfo.user.pageContent.toString()
+      //  text: pageInfo.user.pageContent.toString()
+      text: editorState.toHTML().replace(/"/g, "'")
     })
     if (res.errmsg === 'ok') {
       message.success('更新成功');
     } else {
       message.error('更新失败')
     }
+  }
+
+  function handelEditor(currentEditorState: EditorState) {
+    setEditorState(currentEditorState);
   }
 
   return (
@@ -125,19 +135,23 @@ const UploadImgWall = () => {
           <FormItem label='内容' name={['user', 'pageContent']}>
             <TextArea rows={4}/>
           </FormItem>
+          <BraftEditor
+            value={editorState}
+            onChange={handelEditor}
+            media={{
+
+            }}
+          />
           <Button className={styles.btn} type='primary' htmlType="submit">页面信息上传</Button>
         </Form>
     </div>
   )
 }
 
-export default () => {
-  return (
+export default () => 
     <PageHeaderWrapper content="这是一个新页面，从这里进行开发！" className={styles.main}>
       {/* <div style={{ paddingTop: 100, textAlign: 'center' }}>
         <Spin spinning={loading} size="large"></Spin>
       </div> */}
         <UploadImgWall />
-    </PageHeaderWrapper>
-  );
-};
+    </PageHeaderWrapper>;
