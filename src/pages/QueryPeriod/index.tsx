@@ -1,12 +1,13 @@
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import React, { useEffect, useReducer } from 'react';
-import { Card, DatePicker, Form, Button, Switch, Input } from 'antd';
+import React, { useEffect, useReducer, useState } from 'react';
+import { Card, DatePicker, Form, Button, Switch, Input, Select } from 'antd';
 import styles from './index.less';
 import TableBasic from './TableBasic';
 import moment from 'moment';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { RangeValue } from 'rc-picker/lib/interface';
 import { updatePeriod, queryPeriodFreely } from '@/services/period';
+import { queryAllUsers, parseList as parseUserList, User } from '@/services/user';
 import { notify } from '@/utils/tools';
 import { usePageManager } from '@/utils/commonHooks';
 import { Period, PeriodManagerProps, PeriodListAction } from '../PeriodManager/types';
@@ -15,6 +16,7 @@ import { connect } from 'umi';
 import { ConnectState } from '@/models/connect';
 
 const FItem = Form.Item;
+const { Option } = Select;
 const { RangePicker } = DatePicker;
 
 export const SINGLE_PAGE_SIZE = 10;
@@ -46,6 +48,9 @@ export function parseList(res: any): Array<Period> {
 const PeriodManager: React.FC<PeriodManagerProps> = props => {
   const { currentUser } = props;
   const [pageObj, setPage] = usePageManager();
+  //  咨询师列表
+  const [userList, setUserList] = useState([] as Array<User>);
+  //  let userList: Array<User> = [];
 
   //  列表相关reducer
   function listReducer(state: Array<Period>, action: PeriodListAction) {
@@ -90,9 +95,16 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
     setPage({ total: res.pager.Total });
   }
 
+  async function queryUser() {
+    const res = await queryAllUsers({ offset: 0, size: 50 });
+    setUserList(parseUserList(res).filter(item => item.identity === 'counselor'));
+    console.log(userList);
+  }
+
   //  初始化操作
   useEffect(() => {
     buttonClick();
+    queryUser();
   }, []);
 
   function getQueryString(pageNum: number) {
@@ -101,8 +113,11 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
         {},
         queryObj.switchOn
           ? {
-              date: `_.gt('${queryObj.period?.[0]?.format('YYYY-MM-DD')}').and(_.lt('${queryObj.period?.[1]?.format('YYYY-MM-DD')}'))`
-            } : {},
+              date: `_.gt('${queryObj.period?.[0]?.format(
+                'YYYY-MM-DD',
+              )}').and(_.lt('${queryObj.period?.[1]?.format('YYYY-MM-DD')}'))`,
+            }
+          : {},
         queryObj.counselorId ? { counselorId: `'${queryObj.counselorId}'` } : {},
       ),
     ).replace(/"/g, '');
@@ -123,9 +138,15 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
     });
   }
 
-  function changeInput(event: React.ChangeEvent<HTMLInputElement>) {
+  // function changeInput(event: React.ChangeEvent<HTMLInputElement>) {
+  //   setQuery({
+  //     counselorId: event.target.value,
+  //   });
+  // }
+
+  function changeSelect(value: string) {
     setQuery({
-      counselorId: event.target.value,
+      counselorId: value,
     });
   }
 
@@ -142,7 +163,22 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
             </FItem>
           )}
           <FItem label="咨询师id">
-            <Input size="small" defaultChecked={queryObj.switchOn} onChange={changeInput} />
+            <Select
+              showSearch
+              optionFilterProp="children"
+              onChange={changeSelect}
+              style={{ width: 150 }}
+              filterOption={(input, option) =>
+                option ? option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 : false
+              }
+            >
+              {userList.map(item => (
+                <Option value={item.name} key={item.name}>
+                  {item.name}-{item.showName}
+                </Option>
+              ))}
+            </Select>
+            {/* <Input size="small" defaultChecked={queryObj.switchOn} onChange={changeInput} /> */}
           </FItem>
           <Button className={styles.newRecord} onClick={buttonClick} type="primary">
             搜索
