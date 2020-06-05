@@ -4,6 +4,7 @@ import styles from './index.less';
 import { getPeriod } from '@/services/period';
 import { parseList, SINGLE_PAGE_SIZE } from '../index';
 import { Period, PeriodListAction } from '../types';
+import moment from 'moment';
 import { ActionText } from '@/components/smallCom/ActionText';
 import { PageSet } from '@/pages/TableBasic/types';
 
@@ -40,7 +41,14 @@ export const columns = [
   {
     title: '预约情况',
     key: 'ocupy',
-    render: (item: Period) => (item.count === 0 ? '有预约' : '无人预约'),
+    render: (item: Period) => {
+      const isFuture = moment().format('YYYY-MM-DD') < item.date;
+      const hasOccupied = item.count === 0;
+      if (isFuture) {
+        return hasOccupied ? '已预约' : '待预约';
+      }
+      return hasOccupied ? '已完成' : '未完成';
+    },
   },
 ];
 

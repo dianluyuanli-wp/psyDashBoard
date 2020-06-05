@@ -1,6 +1,6 @@
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import React, { useEffect, useReducer, useState } from 'react';
-import { Card, DatePicker, Form, Button, Switch, Input, Select } from 'antd';
+import { Card, DatePicker, Form, Button, Switch, Select } from 'antd';
 import styles from './index.less';
 import TableBasic from './TableBasic';
 import moment from 'moment';
@@ -8,6 +8,7 @@ import moment from 'moment';
 import { RangeValue } from 'rc-picker/lib/interface';
 import { updatePeriod, queryPeriodFreely } from '@/services/period';
 import { queryAllUsers, parseList as parseUserList, User } from '@/services/user';
+import { parseList } from '../PeriodManager';
 import { notify } from '@/utils/tools';
 import { usePageManager } from '@/utils/commonHooks';
 import { Period, PeriodManagerProps, PeriodListAction } from '../PeriodManager/types';
@@ -20,10 +21,12 @@ const { Option } = Select;
 const { RangePicker } = DatePicker;
 
 export const SINGLE_PAGE_SIZE = 10;
+const STATUS_ARR = ['已预约', '待预约', '已完成', '未完成'];
 export interface QueryObj {
   switchOn: boolean;
   period: RangeValue<moment.Moment>;
   counselorId: string;
+  periodStatus: '' | '已预约' | '待预约' | '已完成' | '未完成';
 }
 
 export interface QueryAction {
@@ -32,25 +35,11 @@ export interface QueryAction {
   period?: RangeValue<moment.Moment>;
 }
 
-export function parseList(res: any): Array<Period> {
-  return res.data
-    .map((item: string): Period => JSON.parse(item))
-    .map(
-      ({ _id, ...rest }: Period) =>
-        ({
-          ...rest,
-          _id,
-          key: _id,
-        } as Period),
-    );
-}
-
 const PeriodManager: React.FC<PeriodManagerProps> = props => {
   const { currentUser } = props;
   const [pageObj, setPage] = usePageManager();
   //  咨询师列表
   const [userList, setUserList] = useState([] as Array<User>);
-  //  let userList: Array<User> = [];
 
   //  列表相关reducer
   function listReducer(state: Array<Period>, action: PeriodListAction) {
@@ -84,6 +73,7 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
     switchOn: true,
     period: [moment(), moment().add(7, 'days')],
     counselorId: '',
+    periodStatus: '',
   } as QueryObj);
 
   async function buttonClick() {
@@ -98,7 +88,6 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
   async function queryUser() {
     const res = await queryAllUsers({ offset: 0, size: 50 });
     setUserList(parseUserList(res).filter(item => item.identity === 'counselor'));
-    console.log(userList);
   }
 
   //  初始化操作
@@ -138,16 +127,14 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
     });
   }
 
-  // function changeInput(event: React.ChangeEvent<HTMLInputElement>) {
-  //   setQuery({
-  //     counselorId: event.target.value,
-  //   });
-  // }
-
   function changeSelect(value: string) {
     setQuery({
       counselorId: value,
     });
+  }
+
+  function changeStatusSelect() {
+    console.log();
   }
 
   return (
@@ -178,11 +165,29 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
                 </Option>
               ))}
             </Select>
-            {/* <Input size="small" defaultChecked={queryObj.switchOn} onChange={changeInput} /> */}
           </FItem>
           <Button className={styles.newRecord} onClick={buttonClick} type="primary">
             搜索
           </Button>
+        </Form>
+        <Form>
+          <FItem label="预约状态">
+            <Select
+              mode="multiple"
+              optionFilterProp="children"
+              onChange={changeStatusSelect}
+              style={{ width: 250 }}
+              filterOption={(input, option) =>
+                option ? option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 : false
+              }
+            >
+              {STATUS_ARR.map(item => (
+                <Option value={item} key={item}>
+                  {item}
+                </Option>
+              ))}
+            </Select>
+          </FItem>
         </Form>
       </Card>
       <TableBasic
