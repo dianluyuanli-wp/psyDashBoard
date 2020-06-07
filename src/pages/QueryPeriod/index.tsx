@@ -26,13 +26,14 @@ export interface QueryObj {
   switchOn: boolean;
   period: RangeValue<moment.Moment>;
   counselorId: string;
-  periodStatus: '' | '已预约' | '待预约' | '已完成' | '未完成';
+  periodStatus: Array<String>;
 }
 
 export interface QueryAction {
   counselorId?: string;
   switchOn?: boolean;
   period?: RangeValue<moment.Moment>;
+  periodStatus?: Array<String>;
 }
 
 const PeriodManager: React.FC<PeriodManagerProps> = props => {
@@ -73,7 +74,7 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
     switchOn: true,
     period: [moment(), moment().add(7, 'days')],
     counselorId: '',
-    periodStatus: '',
+    periodStatus: [],
   } as QueryObj);
 
   async function buttonClick() {
@@ -97,6 +98,7 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
   }, []);
 
   function getQueryString(pageNum: number) {
+    //  日期选择器和姓名
     const queryJsonString = JSON.stringify(
       Object.assign(
         {},
@@ -109,9 +111,13 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
           : {},
         queryObj.counselorId ? { counselorId: `'${queryObj.counselorId}'` } : {},
       ),
+      // 这里要替换下，否则后台会理解为字符串而不是查询条件
     ).replace(/"/g, '');
-    //  这里要替换下，否则后台会理解为字符串而不是查询条件
-    return `db.collection('period').where(${queryJsonString}).skip(${(pageNum - 1) *
+    //  状态选择器
+    const queryJsonString2 = queryObj.periodStatus.length ? `_.or([])` : '{}';
+
+    return `db.collection('period').where(${queryJsonString}).where(${queryJsonString2}).skip(${(pageNum -
+      1) *
       SINGLE_PAGE_SIZE}).limit(${SINGLE_PAGE_SIZE}).orderBy('date','desc').get()`;
   }
 
@@ -133,8 +139,10 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
     });
   }
 
-  function changeStatusSelect() {
-    console.log();
+  function changeStatusSelect(value: Array<String>) {
+    setQuery({
+      periodStatus: value,
+    });
   }
 
   return (
