@@ -2,7 +2,7 @@ import React from 'react';
 import { Table } from 'antd';
 import styles from './index.less';
 import { queryPeriodFreely } from '@/services/period';
-import { SINGLE_PAGE_SIZE } from '../index';
+import { SINGLE_PAGE_SIZE } from '../accessory';
 import { parseList } from '../../PeriodManager';
 import { Period, PeriodListAction } from '../../PeriodManager/types';
 import { columns } from '../../PeriodManager/TableBasic/index';

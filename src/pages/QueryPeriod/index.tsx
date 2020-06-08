@@ -6,11 +6,13 @@ import TableBasic from './TableBasic';
 import moment from 'moment';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { RangeValue } from 'rc-picker/lib/interface';
+
 import { updatePeriod, queryPeriodFreely } from '@/services/period';
 import { queryAllUsers, parseList as parseUserList, User } from '@/services/user';
 import { parseList } from '../PeriodManager';
 import { notify } from '@/utils/tools';
 import { usePageManager } from '@/utils/commonHooks';
+import { STATUS_ARR, SINGLE_PAGE_SIZE, QueryAction, QueryObj, getTypeQueryStr } from './accessory';
 import { Period, PeriodManagerProps, PeriodListAction } from '../PeriodManager/types';
 
 import { connect } from 'umi';
@@ -19,22 +21,6 @@ import { ConnectState } from '@/models/connect';
 const FItem = Form.Item;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-
-export const SINGLE_PAGE_SIZE = 10;
-const STATUS_ARR = ['已预约', '待预约', '已完成', '未完成'];
-export interface QueryObj {
-  switchOn: boolean;
-  period: RangeValue<moment.Moment>;
-  counselorId: string;
-  periodStatus: Array<String>;
-}
-
-export interface QueryAction {
-  counselorId?: string;
-  switchOn?: boolean;
-  period?: RangeValue<moment.Moment>;
-  periodStatus?: Array<String>;
-}
 
 const PeriodManager: React.FC<PeriodManagerProps> = props => {
   const { currentUser } = props;
@@ -114,7 +100,9 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
       // 这里要替换下，否则后台会理解为字符串而不是查询条件
     ).replace(/"/g, '');
     //  状态选择器
-    const queryJsonString2 = queryObj.periodStatus.length ? `_.or([])` : '{}';
+    const typeArray = getTypeQueryStr(queryObj.periodStatus);
+    //  if ()
+    const queryJsonString2 = queryObj.periodStatus.length ? `_.or(${typeArray})` : '{}';
 
     return `db.collection('period').where(${queryJsonString}).where(${queryJsonString2}).skip(${(pageNum -
       1) *
@@ -139,7 +127,7 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
     });
   }
 
-  function changeStatusSelect(value: Array<String>) {
+  function changeStatusSelect(value: any) {
     setQuery({
       periodStatus: value,
     });
