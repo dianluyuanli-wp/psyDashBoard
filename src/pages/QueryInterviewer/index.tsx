@@ -12,6 +12,8 @@ import { ActionText } from '@/components/smallCom/ActionText';
 import { tableTitle, dealWithRes, listReducer } from '../TableBasic/index';
 import { TableComProps, QueryObj, QueryAction } from '../TableBasic/types';
 import { usePageManager } from '@/utils/commonHooks';
+import { SortOrder } from 'antd/lib/table/interface';
+import { Period } from '@/pages/PeriodManager/types';
 
 const FItem = Form.Item;
 const { Option } = Select;
@@ -21,7 +23,7 @@ export const SINGLE_PAGE_SIZE = 10;
 
 const TableCom: React.FC<TableComProps> = () => {
   //    列表状态
-  const [tableData, setList] = useReducer(listReducer, []);  
+  const [tableData, setList] = useReducer(listReducer, []);
   //  咨询师列表
   const [userList, setUserList] = useState([] as Array<User>);
 
@@ -44,8 +46,11 @@ const TableCom: React.FC<TableComProps> = () => {
         {},
         queryObj.switchOn
           ? {
-              'formData.date': `_.gt('${queryObj.period?.[0]?.format('YYYY-MM-DD')}').and(_.lt('${queryObj.period?.[1]?.format('YYYY-MM-DD')}'))`,
-            } : {},
+              'formData.date': `_.gt('${queryObj.period?.[0]?.format(
+                'YYYY-MM-DD',
+              )}').and(_.lt('${queryObj.period?.[1]?.format('YYYY-MM-DD')}'))`,
+            }
+          : {},
         queryObj.counselorId ? { counselorId: `'${queryObj.counselorId}'` } : {},
       ),
     )
@@ -75,6 +80,8 @@ const TableCom: React.FC<TableComProps> = () => {
       dataIndex: 'counselorId',
       key: 'counselorId',
       render: (text: string) => <ActionText text={text} className={styles.action} />,
+      sorter: (a: Period, b: Period) => (a.counselorId >= b.counselorId ? 1 : -1),
+      sortDirections: ['descend', 'ascend'] as Array<SortOrder>,
     },
     ...tableTitle,
   ];
@@ -126,22 +133,22 @@ const TableCom: React.FC<TableComProps> = () => {
               </FItem>
             )}
             <FItem label="咨询师id">
-            <Select
-              showSearch
-              optionFilterProp="children"
-              onChange={changeSelect}
-              style={{ width: 150 }}
-              filterOption={(input, option) =>
-                option ? option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 : false
-              }
-            >
-              {userList.map(item => (
-                <Option value={item.name} key={item.name}>
-                  {item.name}-{item.showName}
-                </Option>
-              ))}
-            </Select>
-          </FItem>
+              <Select
+                showSearch
+                optionFilterProp="children"
+                onChange={changeSelect}
+                style={{ width: 150 }}
+                filterOption={(input, option) =>
+                  option ? option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 : false
+                }
+              >
+                {userList.map(item => (
+                  <Option value={item.name} key={item.name}>
+                    {item.name}-{item.showName}
+                  </Option>
+                ))}
+              </Select>
+            </FItem>
             <Button className={styles.newRecord} onClick={buttonClick} type="primary">
               搜索
             </Button>
