@@ -8,7 +8,7 @@ import moment from 'moment';
 import { RangeValue } from 'rc-picker/lib/interface';
 
 import { updatePeriod, queryPeriodFreely } from '@/services/period';
-import { queryAllUsers, parseList as parseUserList, User } from '@/services/user';
+import { User, queryUser } from '@/services/user';
 import { parseList } from '../PeriodManager';
 import { notify } from '@/utils/tools';
 import { usePageManager } from '@/utils/commonHooks';
@@ -72,15 +72,10 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
     setPage({ total: res.pager.Total });
   }
 
-  async function queryUser() {
-    const res = await queryAllUsers({ offset: 0, size: 50 });
-    setUserList(parseUserList(res).filter(item => item.identity === 'counselor'));
-  }
-
   //  初始化操作
   useEffect(() => {
     buttonClick();
-    queryUser();
+    queryUser(setUserList);
   }, []);
 
   function getQueryString(pageNum: number) {
@@ -101,11 +96,8 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
     ).replace(/"/g, '');
     //  状态选择器
     const typeArray = getTypeQueryStr(queryObj.periodStatus);
-    //  if ()
     const queryJsonString2 = queryObj.periodStatus.length ? `_.or(${typeArray})` : '{}';
-
-    return `db.collection('period').where(${queryJsonString}).where(${queryJsonString2}).skip(${(pageNum -
-      1) *
+    return `db.collection('period').where(${queryJsonString}).where(${queryJsonString2}).skip(${(pageNum - 1) *
       SINGLE_PAGE_SIZE}).limit(${SINGLE_PAGE_SIZE}).orderBy('date','desc').get()`;
   }
 
@@ -162,11 +154,8 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
               ))}
             </Select>
           </FItem>
-          <Button className={styles.newRecord} onClick={buttonClick} type="primary">
-            搜索
-          </Button>
         </Form>
-        <Form>
+        <Form className={styles.range}>
           <FItem label="预约状态">
             <Select
               mode="multiple"
@@ -184,6 +173,9 @@ const PeriodManager: React.FC<PeriodManagerProps> = props => {
               ))}
             </Select>
           </FItem>
+          <Button className={styles.newRecord} onClick={buttonClick} type="primary">
+            搜索
+          </Button>
         </Form>
       </Card>
       <TableBasic

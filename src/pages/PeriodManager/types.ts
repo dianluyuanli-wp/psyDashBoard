@@ -1,6 +1,7 @@
 import { CurrentUser } from '@/models/user';
 
 export interface Period {
+  counselorId: string;
   date: string;
   startTime: string;
   endTime: string;

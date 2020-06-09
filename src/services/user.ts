@@ -51,3 +51,8 @@ export function parseList(res: any): Array<User>{
     } as User)
   );
 }
+
+export async function queryUser(setUserList: React.Dispatch<React.SetStateAction<User[]>>) {
+  const res = await queryAllUsers({ offset: 0, size: 50 });
+  setUserList(parseList(res).filter(item => item.identity === 'counselor'));
+}

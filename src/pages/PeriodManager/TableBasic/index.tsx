@@ -1,12 +1,23 @@
 import React from 'react';
 import { Table } from 'antd';
+import moment from 'moment';
+import { SortOrder } from 'antd/lib/table/interface';
 import styles from './index.less';
 import { getPeriod } from '@/services/period';
 import { parseList, SINGLE_PAGE_SIZE } from '../index';
 import { Period, PeriodListAction } from '../types';
-import moment from 'moment';
 import { ActionText } from '@/components/smallCom/ActionText';
 import { PageSet } from '@/pages/TableBasic/types';
+import { STATUS_ARR } from '../../QueryPeriod/accessory';
+
+function getStatusStr(item: Period) {
+  const isFuture = moment().format('YYYY-MM-DD') < item.date;
+  const hasOccupied = item.count === 0;
+  if (isFuture) {
+    return hasOccupied ? '已预约' : '待预约';
+  }
+  return hasOccupied ? '已完成' : '未完成';
+}
 
 export const columns = [
   {
@@ -14,11 +25,15 @@ export const columns = [
     dataIndex: 'counselorId',
     key: 'counselorId',
     render: (text: string) => <ActionText text={text} className={styles.action} />,
+    sorter: (a: Period, b: Period) => a.counselorId >= b.counselorId ? 1 : -1,
+    sortDirections: ['descend', 'ascend'] as Array<SortOrder>,
   },
   {
     title: '日期',
     dataIndex: 'date',
     key: 'date',
+    sorter: (a: Period, b: Period) => a.date >= b.date ? 1 : -1,
+    sortDirections: ['descend', 'ascend'] as Array<SortOrder>,
   },
   {
     title: '咨询时段',
@@ -40,15 +55,10 @@ export const columns = [
   },
   {
     title: '预约情况',
-    key: 'ocupy',
-    render: (item: Period) => {
-      const isFuture = moment().format('YYYY-MM-DD') < item.date;
-      const hasOccupied = item.count === 0;
-      if (isFuture) {
-        return hasOccupied ? '已预约' : '待预约';
-      }
-      return hasOccupied ? '已完成' : '未完成';
-    },
+    key: 'occupy',
+    render: getStatusStr,
+    sorter: (a: Period, b: Period) => STATUS_ARR.indexOf(getStatusStr(a)) - STATUS_ARR.indexOf(getStatusStr(b)),
+    sortDirections: ['descend', 'ascend'] as Array<SortOrder>,
   },
 ];
 

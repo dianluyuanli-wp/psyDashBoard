@@ -21,20 +21,20 @@ export interface QueryAction {
 
 export function getTypeQueryStr(vArr: Array<string>) {
   const typeMap = {
-    已预约: () => ({
-      date: `_.gte(${moment().format('YYYY-MM-DD')})`,
+    '已预约': () => ({
+      date: `_.gt('${moment().format('YYYY-MM-DD')}')`,
       count: '_.eq(0)',
     }),
-    待预约: () => ({
-      date: `_.gte(${moment().format('YYYY-MM-DD')})`,
+    '待预约': () => ({
+      date: `_.gt('${moment().format('YYYY-MM-DD')}')`,
       count: '_.eq(1)',
     }),
-    已完成: () => ({
-      date: `_.lt(${moment().format('YYYY-MM-DD')})`,
+    '已完成': () => ({
+      date: `_.lte('${moment().format('YYYY-MM-DD')}')`,
       count: '_.eq(0)',
     }),
-    未完成: () => ({
-      date: `_.lt(${moment().format('YYYY-MM-DD')})`,
+    '未完成': () => ({
+      date: `_.lte('${moment().format('YYYY-MM-DD')}')`,
       count: '_.eq(1)',
     }),
   };

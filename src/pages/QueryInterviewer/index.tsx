@@ -1,25 +1,29 @@
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import { connect } from 'umi';
 import { ConnectState } from '@/models/connect';
 import { queryInterviewerFreely } from '@/services/interviewee';
-import { Table, Avatar, Card, Button, Form, Switch, DatePicker, Input } from 'antd';
+import { Table, Avatar, Card, Button, Form, Switch, DatePicker, Select } from 'antd';
 import moment from 'moment';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { RangeValue } from 'rc-picker/lib/interface';
 import styles from './index.less';
+import { User, queryUser } from '@/services/user';
 import { ActionText } from '@/components/smallCom/ActionText';
 import { tableTitle, dealWithRes, listReducer } from '../TableBasic/index';
 import { TableComProps, QueryObj, QueryAction } from '../TableBasic/types';
 import { usePageManager } from '@/utils/commonHooks';
 
 const FItem = Form.Item;
+const { Option } = Select;
 const { RangePicker } = DatePicker;
 
 export const SINGLE_PAGE_SIZE = 10;
 
 const TableCom: React.FC<TableComProps> = () => {
   //    列表状态
-  const [tableData, setList] = useReducer(listReducer, []);
+  const [tableData, setList] = useReducer(listReducer, []);  
+  //  咨询师列表
+  const [userList, setUserList] = useState([] as Array<User>);
 
   //  控制页码
   const [pageObj, setPage] = usePageManager();
@@ -62,6 +66,7 @@ const TableCom: React.FC<TableComProps> = () => {
   };
   useEffect(() => {
     getInterviewerList(1);
+    queryUser(setUserList);
   }, []);
 
   const columns = [
@@ -86,9 +91,9 @@ const TableCom: React.FC<TableComProps> = () => {
     });
   }
 
-  function changeInput(event: React.ChangeEvent<HTMLInputElement>) {
+  function changeSelect(value: string) {
     setQuery({
-      counselorId: event.target.value,
+      counselorId: value,
     });
   }
 
@@ -121,8 +126,22 @@ const TableCom: React.FC<TableComProps> = () => {
               </FItem>
             )}
             <FItem label="咨询师id">
-              <Input size="small" defaultChecked={queryObj.switchOn} onChange={changeInput} />
-            </FItem>
+            <Select
+              showSearch
+              optionFilterProp="children"
+              onChange={changeSelect}
+              style={{ width: 150 }}
+              filterOption={(input, option) =>
+                option ? option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 : false
+              }
+            >
+              {userList.map(item => (
+                <Option value={item.name} key={item.name}>
+                  {item.name}-{item.showName}
+                </Option>
+              ))}
+            </Select>
+          </FItem>
             <Button className={styles.newRecord} onClick={buttonClick} type="primary">
               搜索
             </Button>
