@@ -6,14 +6,13 @@ import { Table, Avatar, Card, Button, Form, Switch, DatePicker, Select } from 'a
 import moment from 'moment';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { RangeValue } from 'rc-picker/lib/interface';
+import { SortOrder } from 'antd/lib/table/interface';
 import styles from './index.less';
 import { User, queryUser } from '@/services/user';
 import { ActionText } from '@/components/smallCom/ActionText';
 import { tableTitle, dealWithRes, listReducer } from '../TableBasic/index';
-import { TableComProps, QueryObj, QueryAction } from '../TableBasic/types';
+import { TableComProps, QueryObj, QueryAction, TableItem } from '../TableBasic/types';
 import { usePageManager } from '@/utils/commonHooks';
-import { SortOrder } from 'antd/lib/table/interface';
-import { Period } from '@/pages/PeriodManager/types';
 
 const FItem = Form.Item;
 const { Option } = Select;
@@ -80,7 +79,7 @@ const TableCom: React.FC<TableComProps> = () => {
       dataIndex: 'counselorId',
       key: 'counselorId',
       render: (text: string) => <ActionText text={text} className={styles.action} />,
-      sorter: (a: Period, b: Period) => (a.counselorId >= b.counselorId ? 1 : -1),
+      sorter: (a: TableItem, b: TableItem) => (a.counselorId >= b.counselorId ? 1 : -1),
       sortDirections: ['descend', 'ascend'] as Array<SortOrder>,
     },
     ...tableTitle,
